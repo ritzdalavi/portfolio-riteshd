@@ -1,624 +1,497 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ritesh Dalvi | Storage Engineer</title>
 
-        <!--=============== FAVICON ===============-->
-        <link rel="shortcut icon" href="assets/img/favicon-32x32.png" type="image/x-icon">
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620735.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
-        <!--=============== REMIXICONS ===============-->
-        <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* ==================== 1. CORE SYSTEM ==================== */
+        :root {
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --surface-light: #141414;
+            --primary: #ccff00; /* Acid Lime */
+            --accent: #7000ff; /* Electric Violet */
+            --text: #ffffff;
+            --text-dim: #888888;
+            --border: 1px solid rgba(255,255,255,0.1);
+            --border-glow: 1px solid rgba(204, 255, 0, 0.5);
+            --font-main: 'Outfit', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
+
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        img { width: 100%; display: block; }
+
+        /* ==================== 2. FX LAYERS ==================== */
+        .noise-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://grainy-gradients.vercel.app/noise.svg');
+            opacity: 0.04; pointer-events: none; z-index: 999;
+        }
         
-        <!--=============== SWIPER CSS ===============-->
-        <link rel="stylesheet" href="assets/css/swiper-bundle.min.css">
+        .cursor {
+            width: 12px; height: 12px; background: var(--primary);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000;
+            transform: translate(-50%, -50%); mix-blend-mode: difference;
+            transition: width 0.3s, height 0.3s;
+        }
+        .cursor.hovered { width: 50px; height: 50px; opacity: 0.5; }
 
-        <!--=============== CSS ===============-->
-        <link rel="stylesheet" href="assets/css/styles.css">
+        /* ==================== 3. FLOATING DOCK NAV ==================== */
+        .dock-wrapper {
+            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            z-index: 1000;
+        }
+        .dock {
+            display: flex; gap: 1rem;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            border: var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .dock-item {
+            width: 50px; height: 50px;
+            background: #222;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #fff;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .dock-item:hover {
+            transform: translateY(-15px) scale(1.2);
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 5px 15px rgba(204, 255, 0, 0.4);
+        }
+        /* Tooltip for Dock */
+        .dock-item::after {
+            content: attr(data-label);
+            position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+            background: #fff; color: #000; padding: 4px 8px; border-radius: 4px;
+            font-size: 0.7rem; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.2s;
+            white-space: nowrap;
+        }
+        .dock-item:hover::after { opacity: 1; top: -50px; }
 
-        <title>Ritesh Rakesh Dalvi  </title>
-    </head>
-    <body>
-        <!--==================== HEADER ====================-->
-        <header class="header" id="header">
-            <nav class="nav container">
-                <a href="#" class="nav__logo">
-                    Ritesh Dalvi 
-                </a>
+        /* ==================== 4. SECTIONS LAYOUT ==================== */
+        .section {
+            padding: 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .section-header {
+            margin-bottom: 4rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 2rem;
+        }
+        .section-title {
+            font-size: 4rem; text-transform: uppercase; font-weight: 800;
+            line-height: 1; color: var(--text);
+        }
+        .section-subtitle {
+            font-family: var(--font-code); color: var(--primary); margin-top: 0.5rem; display: block;
+        }
 
-                <div class="nav__menu" id="nav-menu">
-                    <ul class="nav__list grid">
-                        <li class="nav__item">
-                            <a href="#home" class="nav__link active-link">
-                                <i class="ri-home-5-line"></i> Home
-                            </a>
-                        </li>
+        /* ==================== 5. HERO ==================== */
+        .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center;
+            padding-top: 0;
+        }
+        .hero-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr; gap: 4rem; align-items: center;
+        }
+        .hero-tag {
+            display: inline-block; padding: 0.5rem 1rem; border: 1px solid var(--primary);
+            color: var(--primary); border-radius: 50px; font-family: var(--font-code);
+            font-size: 0.9rem; margin-bottom: 2rem;
+        }
+        .hero-name {
+            font-size: 6vw; line-height: 0.9; font-weight: 800;
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-role {
+            font-size: 2rem; margin-top: 1rem; color: var(--text-dim);
+        }
+        .hero-role span { color: var(--primary); font-family: var(--font-code); }
+        
+        .hero-img-box {
+            position: relative;
+            z-index: 1;
+        }
+        .hero-img {
+            border-radius: 20px;
+            filter: grayscale(100%);
+            transition: 0.5s;
+            border: 1px solid #333;
+            box-shadow: 20px 20px 0px var(--surface-light);
+        }
+        .hero-img:hover { filter: grayscale(0%); transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--primary); }
 
-                        <li class="nav__item">
-                            <a href="#skills" class="nav__link">
-                                <i class="ri-trophy-line"></i> Skills
-                            </a>
-                        </li>
+        /* ==================== 6. SKILLS GRID ==================== */
+        .skills-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;
+        }
+        .skill-card {
+            background: var(--surface); border: var(--border); padding: 2rem;
+            border-radius: 16px; transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .skill-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .skill-card h3 { font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .skill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .tag {
+            background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 4px;
+            font-size: 0.8rem; color: #ccc; border: 1px solid transparent; transition: 0.2s;
+        }
+        .skill-card:hover .tag { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
 
-                        <li class="nav__item">
-                            <a href="#qualification" class="nav__link">
-                                <i class="ri-book-open-line"></i> Qualification
-                            </a>
-                        </li>
+        /* ==================== 7. TERMINAL EXPERIENCE ==================== */
+        .terminal {
+            background: #0d0d0d; border: 1px solid #333; border-radius: 12px;
+            font-family: var(--font-code); padding: 2rem; position: relative;
+        }
+        .terminal-header {
+            display: flex; gap: 8px; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #222;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        
+        .exp-row {
+            display: grid; grid-template-columns: 150px 1fr; gap: 2rem; margin-bottom: 3rem;
+            opacity: 0.7; transition: 0.3s;
+        }
+        .exp-row:hover { opacity: 1; }
+        .exp-date { color: var(--primary); }
+        .exp-title { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
+        .exp-company { color: var(--accent); margin-bottom: 1rem; display: block; }
+        .exp-desc { font-size: 0.9rem; color: #aaa; }
 
-                        <li class="nav__item">
-                            <a href="#services" class="nav__link">
-                                <i class="ri-briefcase-line"></i> Services
-                            </a>
-                        </li>
+        /* ==================== 8. PROJECT CARDS (BIG) ==================== */
+        .projects-wrapper { display: flex; flex-direction: column; gap: 4rem; }
+        .project-item {
+            display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem;
+            align-items: center; border: var(--border); padding: 2rem; border-radius: 24px;
+            background: var(--surface); transition: 0.3s;
+        }
+        .project-item:hover { border-color: var(--primary); }
+        .project-visual {
+            height: 300px; border-radius: 16px; overflow: hidden; position: relative;
+        }
+        .project-visual img {
+            width: 100%; height: 100%; object-fit: cover; transition: 0.5s;
+        }
+        .project-item:hover .project-visual img { transform: scale(1.05); }
+        .project-info h3 { font-size: 2rem; margin-bottom: 1rem; }
+        .project-info p { color: var(--text-dim); margin-bottom: 2rem; font-size: 1rem; }
+        .btn-link {
+            display: inline-flex; align-items: center; gap: 10px;
+            color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            border-bottom: 1px solid transparent; transition: 0.3s;
+        }
+        .btn-link:hover { border-bottom-color: var(--primary); gap: 15px; }
 
-                        <li class="nav__item">
-                            <a href="#projects" class="nav__link">
-                                <i class="ri-image-line"></i> Projects
-                            </a>
-                        </li>
+        /* ==================== 9. CONTACT FOOTER ==================== */
+        .footer-cta {
+            text-align: center; padding: 6rem 0;
+            background: linear-gradient(to top, var(--surface), transparent);
+        }
+        .big-email {
+            font-size: 5vw; font-weight: 900; color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.3); transition: 0.3s;
+            display: block; margin-top: 2rem;
+        }
+        .big-email:hover { color: var(--primary); -webkit-text-stroke: 1px var(--primary); cursor: pointer; }
 
-                        <li class="nav__item">
-                            <a href="#contact" class="nav__link">
-                                <i class="ri-chat-3-line"></i> Contact
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <!-- close button -->
-                    <div class="nav__close" id="nav-close">
-                        <i class="ri-close-line"></i>
-                    </div>
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 900px) {
+            .hero-grid, .project-item { grid-template-columns: 1fr; }
+            .hero-name { font-size: 3.5rem; }
+            .section-title { font-size: 2.5rem; }
+            .project-visual { height: 200px; }
+            .exp-row { grid-template-columns: 1fr; gap: 0.5rem; }
+            .exp-date { margin-bottom: 0.5rem; display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-bg"></div>
+    <div class="cursor"></div>
+
+    <div class="dock-wrapper">
+        <nav class="dock">
+            <a href="#hero" class="dock-item hover-trigger" data-label="Home"><i class="ri-home-5-line"></i></a>
+            <a href="#about" class="dock-item hover-trigger" data-label="About"><i class="ri-user-smile-line"></i></a>
+            <a href="#skills" class="dock-item hover-trigger" data-label="Skills"><i class="ri-cpu-line"></i></a>
+            <a href="#projects" class="dock-item hover-trigger" data-label="Projects"><i class="ri-folder-open-line"></i></a>
+            <a href="#contact" class="dock-item hover-trigger" data-label="Contact"><i class="ri-mail-send-line"></i></a>
+        </nav>
+    </div>
+
+    <section class="section hero" id="hero">
+        <div class="hero-grid">
+            <div class="hero-content">
+                <span class="hero-tag">Hey My name is </span>
+                <h1 class="hero-name">RITESH DALVI</h1>
+                <div class="hero-role">
+                    I build <span id="typewriter"></span>
                 </div>
-
-                <div class="nav__buttons">
-                    <!-- theme change button -->
-                    <i class="ri-moon-line change-theme" id="theme-button"></i>
-
-                    <!-- toggle button -->
-                    <div class="nav__toggle" id="nav-toggle">
-                        <i class="ri-menu-4-line"></i>
-                    </div>
+                <p style="margin-top: 2rem; color: #aaa; max-width: 500px; font-size: 1.1rem;">
+                    A hybrid <strong>Storage Engineer</strong> & <strong>Frontend Developer</strong> based in Mumbai. 
+                    I specialize in managing massive data infrastructure (SAN/NAS) while crafting pixel-perfect web experiences.
+                </p>
+                <div style="margin-top: 3rem; display: flex; gap: 1.5rem;">
+                    <a href="#projects" class="btn-link">View My Work <i class="ri-arrow-right-line"></i></a>
+                    <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" class="btn-link" style="color: #fff;">LinkedIn <i class="ri-arrow-right-up-line"></i></a>
                 </div>
-            </nav>
-        </header>
-
-        <!--==================== MAIN ====================-->
-        <main class="main">
-            <!--==================== HOME ====================-->
-            <section class="home section" id="home">
-                <div class="home__container container grid section__border">
-                    <div class="home__data grid">
-                        <h1 class="home__title">
-                            Hi, I’m Ritesh Dalvi <br>
-                            Front-End Developer <br>
-                        </h1>
-
-                        <div class="home__blob grid">
-                            <div class="home__perfil">
-                                <img src="assets//img/ritesh.jpg" alt="">
-                            </div>
-
-                           
-                            <img src="assets/img/shape-circle.svg" alt="" class="home_shape-circle">
-                        </div>
-
-                        <ul class="home__social">
-                            <a href="https://www.linkedin.com/in/ritesh-dalvi-154112210?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app " target="_blank" class="home__social-link">
-                                <i class="ri-linkedin-box-line"></i>
-                            </a>
-
-                            <a href="https://github.com/ritzdalavi" target="_blank" class="home__social-link">
-                                <i class="ri-github-line"></i>
-                            </a>
-                        </ul>
-                    </div>
-
-                    <!--==================== HOME INFO 1 ====================-->
-                    <div class="home__info">
-                        <div>
-                            <h3 class="home__info-title">
-                                BIOGRAPHY
-                            </h3>
-
-                            <p class="home__info-description">
-                                Hi, I'm Ritesh, a Frontend Developer & UI/UX Designer.
-                                Passionate about crafting intuitive and visually appealing user interfaces with a strong focus on user experience and modern web technologies.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="home__info-title">
-                                CONTACT
-                            </h3>
-
-                            <p class="home__info-description">
-                                Satara , Maharashtra, India <br>
-                                riteshrdalavi3053@gmail.com <br>
-                                +91 9359283323 <br>
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="home__info-title">
-                                SERVICES
-                            </h3>
-
-                            <p class="home__info-description">
-                                1)Front-End Developement  <br>
-                                2)UI/UX Developement<br>
-                                3)Content Creation for Engagement of company <br>                           </p>
-                        </div>
-                    </div>
-
-                    <!--==================== HOME INFO 2 ====================-->
-                    <div class="home__info">
-                        <div>
-                            <h3 class="home__info-title">
-                                YEARS OF EXPERIENCE
-                            </h3>
-
-                            <p class="home__info-number">
-                                3 months
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="home__info-title">
-                                COMPLETED PROJECTS
-                            </h3>
-
-                            <p class="home__info-number">
-                                6+
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="home__info-title">
-                                COMPANIES WORKED
-                            </h3>
-
-                            <p class="home__info-number">
-                                01+
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!--==================== SKILLS ====================-->
-            <section class="skills section" id="skills">
-                <h2 class="section__title">Skills</h2>
-                <span class="section__subtitle">My favorite skills</span>
-                
-                <div class="skills__container container grid section__border">
-                    <!--==================== SKILLS 1 ====================-->
-                    <div class="skills__content">
-                        <h3 class="skills__title">
-                            <i class="ri-braces-line"></i> Front-End Development and Basic Skills 
-                        </h3>
-
-                        <div class="skills__info">
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/react-2.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">ReactJS</h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/html-1.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">HTML</h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-                            
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/css-3.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">CSS</h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/javascript-logo-svgrepo-com.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Javascript</h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/android-studio-icon.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Android </h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-
-                         
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/git-icon.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Git</h3>
-                                <span class="skills__subtitle">Basic</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--==================== SKILLS 2 ====================-->
-                    <div class="skills__content">
-                        <h3 class="skills__title">
-                            <i class="ri-pantone-line"></i>UI UX and Content Creation 
-                        </h3>
-
-                        <div class="skills__info">
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/figma-logo-svgrepo-com.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Figma</h3>
-                                <span class="skills__subtitle">Intermediate</span>
-                            </div>
-
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/adobe-xd-icon.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Addobe XD</h3>
-                                <span class="skills__subtitle">Basic</span>
-                            </div>
-
-                            <div class="skills__data">
-                                <div class="skills__blob">
-                                    <img src="assets/img/canva-icon.svg" alt="skills image">
-                                </div>
-
-                                <h3 class="skills__name">Canva</h3>
-                                <span class="skills__subtitle">Advance</span>
-                            </div>
-
-                         
-                </div>
-            </section>
-
-            <!--==================== QUALIFICATION ====================-->
-            <section class="qualification section" id="qualification">
-                <h2 class="section__title">Qualification</h2>
-                <span class="section__subtitle">Experience & education</span>
-
-                <div class="qualification__container container grid section__border">
-                    <!--==================== QUALIFICATION 1 ====================-->
-                    <div class="qualification__content">
-                        <h3 class="qualification__title">
-                            <i class="ri-pencil-line"></i> Education
-                        </h3>
-
-                        <div class="qualification__info">
-                            <div>
-                                <h3 class="qualification__name">
-                                  Masters Of Computer Applications (MCA)
-                                </h3>
-                                <span class="qualification__country">VIIT Baramati (Savitribai Phule Pune University)</span>
-                                <span class="qualification__year">2023-2025</span>
-                            </div>
-
-                            <div>
-                                <h3 class="qualification__name">
-                                    Bachelors Of Computer application (BCA)
-                                </h3>
-                                <span class="qualification__country">Dhananajayrao Gadgil College Of Commerce Satara</span>
-                                <span class="qualification__year">2020-2023</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--==================== QUALIFICATION 2 ====================-->
-                    <div class="qualification__content">
-                        <h3 class="qualification__title">
-                            <i class="ri-building-line"></i> Work
-                        </h3>
-
-                        <div class="qualification__info">
-                            <div>
-                                <h3 class="qualification__name">
-                                    Front-end Developer
-                                </h3>
-                                <span class="qualification__country">Sync Solutions - Pune</span>
-                                <span class="qualification__year"> 2024 - Present</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <img src="assets/img/shape-circle.svg" alt=" qualification image" class="qualification__img">
-            </section>
-
-            <!--==================== SERVICES ====================-->
-            <section class="services section" id="services">
-                <h2 class="section__title">Services</h2>
-                <span class="section__subtitle">What i offer</span>
-
-                <div class="services__container container grid section__border">
-                    <div class="services__card">
-                        <i class="ri-layout-4-line"></i>
-
-                        <h2 class="services__title">
-                            UI/UX <br>
-                            & content Creation 
-                        </h2>
-
-                        <p class="services__description">
-                            Service that provides the best quality and at 
-                            the request of the client, with professional 
-                            work and customer support.
-                        </p>
-
-                        <div class="services__border"></div>
-                    </div>
-
-                    <div class="services__card">
-                        <i class="ri-code-line"></i>
-
-                        <h2 class="services__title">
-                            Website <br>
-                            Design
-                        </h2>
-
-                        <p class="services__description">
-                            Service that provides the best quality and at 
-                            the request of the client, with professional 
-                            work and customer support.
-                        </p>
-
-                        <div class="services__border"></div>
-                    </div>
-
-                    <div class="services__card">
-                        <i class="ri-quill-pen-line"></i>
-                        
-                        <h2 class="services__title">
-                            Mobile <br>
-                            Application
-                        </h2>
-
-                        <p class="services__description">
-                            Service that Provides quality mobile app
-                            development services tailored to client needs, 
-                            with professional expertise
-                        </p>
-
-                        <div class="services__border"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!--==================== PROJECTS ====================-->
-            <section class="projects section" id="projects">
-                <h2 class="section__title">Projects</h2>
-                <span class="section__subtitle">More recent work</span>
-
-                <div class="container section__border">
-                    <div class="projects__container swiper">
-                        <div class="swiper-wrapper">
-                            <!--==================== PROJECT 1 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/glamzone.jpg" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">Web</span>
-                                    <h1 class="projects__title">GlamZone Website</h1>
-
-                                    <a href="https://glamzonskincare.in/index.html" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <!--==================== PROJECT 2 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/qcb.png" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">Web</span>
-                                    <h1 class="projects__title">QuickCabs Admin Panel </h1>
-
-                                    <a href="https://www.quickcabpune.com/index.html" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <!--==================== PROJECT 2 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/qcb.png" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">UI UX</span>
-                                    <h1 class="projects__title">QuickCabs App UI design  </h1>
-
-                                    <a href="https://www.quickcabpune.com/index.html" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <!--==================== PROJECT 2 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/chemical.jpg" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">Mobile</span>
-                                    <h1 class="projects__title">Virtual Chembuddy </h1>
-
-                                    <a href="https://www.quickcabpune.com/index.html" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <!--==================== PROJECT 3 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/project3.jpg" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">Mobile Application</span>
-                                    <h1 class="projects__title">Aahar App</h1>
-
-                                    <a href="#" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                            <!--==================== PROJECT 4 ====================-->
-                            <div class="projects__content swiper-slide">
-                                <img src="assets/img/esports-logo.png" alt="projects image" class="projects__img">
-
-                                <div>
-                                    <span class="projects__subtitle">Web Application</span>
-                                    <h1 class="projects__title">E-sports Gaming Management System</h1>
-
-                                    <a href="#" class="projects__button">
-                                        View demo <i class="ri-arrow-right-line"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Swiper arrow -->
-                        <div class="swiper-button-next">
-                            <i class="ri-arrow-right-s-line"></i>
-                        </div>
-
-                        <div class="swiper-button-prev">
-                            <i class="ri-arrow-left-s-line"></i>
-                        </div>
-
-                        <!-- Swiper pagination -->
-                        <div class="swiper-pagination"></div>
-                    </div>
-                </div>
-            </section>
-                    </div>
-                </div>
-
-           
-
-            <!--==================== CONTACT ====================-->
-            <section class="contact section" id="contact">
-                <h2 class="section__title">Contact Me</h2>
-                <span class="section__subtitle">Get in touch</span>
-
-                <div class="contact__container container grid section__border">
-                    <div class="contact__content">
-                        <h3 class="contact__title">
-                            <i class="ri-chat-3-line"></i> Contact Me
-                        </h3>
-
-                        <div class="contact__info">
-                            <div class="contact__data">
-                                <span class="contact__data-title">Email</span>
-                                <span class="contact__data-info">riteshrdalavi3053@gmail.com</span>
-                            </div>
-
-                            <div class="contact__data">
-                                <span class="contact__data-title">Contact Number</span>
-                                <span class="contact__data-info">+91-9359283323</span> 
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="contact__content">
-                        <h3 class="contact__title">
-                            <i class="ri-send-plane-line"></i> Contact me via mail
-                        </h3>
-
-                        <form action="" class="contact__form" id="contact-form">
-                            <div class="contact__form-div">
-                                <label for="" class="contact__form-tag">Names</label>
-                                <input type="text" name="user_name" required placeholder="Write your names" class="contact__form-input" id="contact-name">
-                            </div>
-
-                            <div class="contact__form-div">
-                                <label for="" class="contact__form-tag">Mail</label>
-                                <input type="email" name="user_email" required placeholder="Write your email" class="contact__form-input" id="contact-email">
-                            </div>
-
-                            <div class="contact__form-div contact__form-area">
-                                <label for="" class="contact__form-tag"></label>
-                                <textarea name="user_project" placeholder="Write your E-mail" id="contact-project" class="contact__form-input"></textarea>
-                            </div>
-
-                            <p class="contact__message" id="contact-message"></p>
-
-                            <button type="submit" class="contact__button">
-                                Submit <i class="ri-arrow-right-up-line"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!--==================== FOOTER ====================-->
-        <footer class="footer">
-            <div class="footer__container container">
-                <h1 class="footer__title">Ritesh Dalvi</h1>
-                <p>Frontend Developer</p>
-
-                <ul class="footer__list">
-                    <li>
-                        <a href="#home" class="footer__link">Home</a>
-                    </li>
-
-                    <li>
-                        <a href="#skills" class="footer__link">Skills</a>
-                    </li>
-
-                    <li>
-                        <a href="#projects" class="footer__link">Projects</a>
-                    </li>
-                </ul>
-
-                <ul class="footer__social">
-                    <a href="https://www.linkedin.com/in/ritesh-dalvi-154112210?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app " target="_blank" class="footer__social-link">
-                        <i class="ri-linkedin-box-line"></i>
-                    </a>
-                    <a href="https://github.com/ritzdalavi" target="_blank" class="footer__social-link">
-                        <i class="ri-github-line"></i>
-                    </a>
-                </ul>
-
-                <span class="footer__copy">
-                    &#169; Copyright Ritesh Dalvi 2025. All rights reserved
-                </span>
             </div>
-        </footer>
+            <div class="hero-img-box hover-trigger">
+                <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi" class="hero-img">
+            </div>
+        </div>
+    </section>
 
+    <section class="section" id="skills">
+        <div class="section-header">
+            <h2 class="section-title">Technical <span style="color:var(--primary)">Arsenal</span></h2>
+            <span class="section-subtitle">What I bring to the table</span>
+        </div>
 
-        <!--========== SCROLL UP ==========-->
-        <a href="#" class="scrollup" id="scroll-up">
-            <i class="ri-arrow-up-line"></i>
-        </a>
+        <div class="skills-grid">
+            <div class="skill-card hover-trigger">
+                <h3><i class="ri-database-2-fill" style="color: var(--primary);"></i> Storage Infrastructure</h3>
+                <div class="skill-list">
+                    <span class="tag">Dell EMC PowerStore</span>
+                    <span class="tag">Hitachi VSP</span>
+                    <span class="tag">Huawei OceanStor</span>
+                    <span class="tag">SAN Zoning</span>
+                    <span class="tag">LUN Masking</span>
+                    <span class="tag">RAID Config</span>
+                    <span class="tag">Disaster Recovery</span>
+                </div>
+            </div>
 
-        <!--=============== SCROLLREVEAL ===============-->
-        <script src="assets/js/scrollreveal.min.js"></script>
+            <div class="skill-card hover-trigger">
+                <h3><i class="ri-code-s-slash-line" style="color: var(--accent);"></i> Web Development</h3>
+                <div class="skill-list">
+                    <span class="tag">React.js</span>
+                    <span class="tag">JavaScript (ES6+)</span>
+                    <span class="tag">HTML5 & CSS3</span>
+                    <span class="tag">Tailwind CSS</span>
+                    <span class="tag">Node.js Basics</span>
+                    <span class="tag">Git & GitHub</span>
+                    <span class="tag">Responsive Design</span>
+                </div>
+            </div>
 
-        <!--=============== SWIPER JS ===============-->
-        <script src="assets/js/swiper-bundle.min.js"></script>
+            <div class="skill-card hover-trigger">
+                <h3><i class="ri-tools-fill" style="color: #fff;"></i> Tools & Design</h3>
+                <div class="skill-list">
+                    <span class="tag">Figma</span>
+                    <span class="tag">VS Code</span>
+                    <span class="tag">Canva</span>
+                    <span class="tag">Adobe XD</span>
+                    <span class="tag">Linux CLI</span>
+                    <span class="tag">Putty</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="about">
+        <div class="section-header">
+            <h2 class="section-title">System <span style="color:var(--primary)">Logs</span></h2>
+            <span class="section-subtitle">My professional journey</span>
+        </div>
+
+        <div class="terminal hover-trigger">
+            <div class="terminal-header">
+                <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+            </div>
+            
+            <div class="exp-row">
+                <div class="exp-date">> OCT 2025 - NOW</div>
+                <div class="exp-info">
+                    <h4 class="exp-title">L1 Storage Engineer</h4>
+                    <span class="exp-company">@ BSE (Bombay Stock Exchange)</span>
+                    <p class="exp-desc">Managing mission-critical financial data storage. Handling SAN zoning, LUN provisioning, and proactive health monitoring of Dell & Hitachi arrays. Ensuring 99.99% uptime for trading data.</p>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-date">> JUN - SEP 2025</div>
+                <div class="exp-info">
+                    <h4 class="exp-title">Software Developer</h4>
+                    <span class="exp-company">@ Picsise Technologies Pvt</span>
+                    <p class="exp-desc">Developed scalable web applications. Optimized database queries which reduced load times by 40%. Implemented responsive UI components using React.</p>
+                </div>
+            </div>
+
+            <div class="exp-row">
+                <div class="exp-date">> DEC 24 - MAR 25</div>
+                <div class="exp-info">
+                    <h4 class="exp-title">Frontend Developer Intern</h4>
+                    <span class="exp-company">@ Sync Solutions</span>
+                    <p class="exp-desc">Built interactive user interfaces. Translated Figma designs into clean, functional HTML/CSS/JS code. Assisted senior devs in debugging & testing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="projects">
+        <div class="section-header">
+            <h2 class="section-title">Selected <span style="color:var(--primary)">Works</span></h2>
+            <span class="section-subtitle">Code deployed to production</span>
+        </div>
+
+        <div class="projects-wrapper">
+            
+            <div class="project-item hover-trigger">
+                <div class="project-visual">
+                    <img src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="GlamZone">
+                </div>
+                <div class="project-info">
+                    <span class="tag" style="background:var(--primary); color:black; font-weight:bold;">E-COMMERCE</span>
+                    <h3>GlamZone Skincare</h3>
+                    <p>A comprehensive beauty e-commerce platform featuring dynamic product filtering, cart functionality, and a responsive mobile-first design.</p>
+                    <a href="https://glamzonskincare.in/index.html" class="btn-link">View Live Project <i class="ri-arrow-right-line"></i></a>
+                </div>
+            </div>
+
+            <div class="project-item hover-trigger">
+                <div class="project-visual">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="QuickCabs">
+                </div>
+                <div class="project-info">
+                    <span class="tag" style="background:var(--accent); font-weight:bold;">ADMIN DASHBOARD</span>
+                    <h3>QuickCabs Admin</h3>
+                    <p>A fleet management dashboard allowing admins to track taxis, manage driver schedules, and view earnings analytics in real-time.</p>
+                    <a href="https://www.quickcabpune.com/index.html" class="btn-link">View Live Project <i class="ri-arrow-right-line"></i></a>
+                </div>
+            </div>
+
+            <div class="project-item hover-trigger">
+                <div class="project-visual">
+                    <img src="https://images.unsplash.com/photo-1633167606207-d840b5070fc2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Chembuddy">
+                </div>
+                <div class="project-info">
+                    <span class="tag" style="background:#fff; color:black; font-weight:bold;">ED-TECH APP</span>
+                    <h3>Virtual Chembuddy</h3>
+                    <p>An interactive educational tool that simulates chemical reactions visually, helping students understand stoichiometry safely.</p>
+                    <a href="#" class="btn-link">View Case Study <i class="ri-arrow-right-line"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="section footer-cta" id="contact">
+        <p style="font-family: var(--font-code); color: var(--primary);">WHAT'S NEXT?</p>
+        <h2 style="font-size: 2.5rem; margin-top: 1rem;">Let's work together.</h2>
+        <p style="color: #888; max-width: 600px; margin: 1rem auto;">
+            Currently looking for new opportunities. Whether you have a question about storage infrastructure or want to build a website, my inbox is always open.
+        </p>
         
-        <!--=============== EMAIL JS ===============-->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+        <a href="mailto:riteshrdalavi3053@gmail.com" class="big-email hover-trigger">SAY HELLO</a>
 
-        <!--=============== MAIN JS ===============-->
-        <script src="assets/js/main.js"></script>
-    </body>
+        <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; font-size: 1.5rem;">
+            <a href="https://linkedin.com/in/ritesh-dalvi-154112210" class="hover-trigger"><i class="ri-linkedin-fill"></i></a>
+            <a href="https://github.com/ritzdalavi" class="hover-trigger"><i class="ri-github-fill"></i></a>
+            <a href="#" class="hover-trigger"><i class="ri-instagram-fill"></i></a>
+        </div>
+        
+        <p style="margin-top: 4rem; font-size: 0.8rem; color: #444;">
+            &copy; 2026 Ritesh Dalvi. Built with precision.
+        </p>
+    </footer>
+
+    <script>
+        // 1. TYPEWRITER EFFECT
+        const textElement = document.getElementById('typewriter');
+        const phrases = ["Robust Storage Solutions", "Interactive Websites", "User Interfaces", "Data Reliability"];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                textElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                textElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                isDeleting = true;
+                setTimeout(type, 2000); // Pause at end
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                setTimeout(type, 500); // Pause before next word
+            } else {
+                setTimeout(type, isDeleting ? 50 : 100);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', type);
+
+        // 2. CUSTOM CURSOR
+        const cursor = document.querySelector('.cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Hover Effect
+        const hoverTargets = document.querySelectorAll('.hover-trigger, a, button');
+        hoverTargets.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
+
+        // 3. SCROLL REVEAL (Simple Intersection Observer)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Apply fade-in animation styles to sections
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = 0;
+            section.style.transform = 'translateY(50px)';
+            section.style.transition = 'all 0.8s ease-out';
+            observer.observe(section);
+        });
+    </script>
+</body>
 </html>
