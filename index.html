@@ -3,495 +3,578 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ritesh Dalvi | Storage Engineer</title>
+    <title>Ritesh Dalvi | Infrastructure & UI Engineer</title>
 
     <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620735.png" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
     <style>
-        /* ==================== 1. CORE SYSTEM ==================== */
+        /* ==================== 1. ENTERPRISE DESIGN SYSTEM ==================== */
         :root {
-            --bg: #050505;
-            --surface: #0a0a0a;
-            --surface-light: #141414;
-            --primary: #ccff00; /* Acid Lime */
-            --accent: #7000ff; /* Electric Violet */
-            --text: #ffffff;
-            --text-dim: #888888;
-            --border: 1px solid rgba(255,255,255,0.1);
-            --border-glow: 1px solid rgba(204, 255, 0, 0.5);
-            --font-main: 'Outfit', sans-serif;
-            --font-code: 'JetBrains Mono', monospace;
+            --bg-base: #09090b; /* Deep Zinc */
+            --bg-surface: #18181b; /* Elevated Zinc */
+            --bg-surface-hover: #27272a;
+            --text-primary: #f8fafc;
+            --text-secondary: #a1a1aa;
+            
+            --accent-main: #38bdf8; /* Tech Sky Blue */
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --accent-alt: #818cf8; /* Indigo */
+            
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+            
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
+        
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: var(--font-main);
-            overflow-x: hidden;
-            line-height: 1.6;
+            background-color: var(--bg-base); color: var(--text-primary);
+            font-family: var(--font-sans); overflow-x: hidden; line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
-
+        
         a { text-decoration: none; color: inherit; }
-        ul { list-style: none; }
         img { width: 100%; display: block; }
+        ul { list-style: none; }
 
-        /* ==================== 2. FX LAYERS ==================== */
-        .noise-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.04; pointer-events: none; z-index: 999;
+        @media (pointer: fine) { * { cursor: none; } }
+
+        /* ==================== 2. DYNAMIC BACKGROUND & CURSOR ==================== */
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-image: linear-gradient(var(--border-color) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(ellipse at center, black 10%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 80%);
+            opacity: 0.3;
         }
-        
-        .cursor {
-            width: 12px; height: 12px; background: var(--primary);
+
+        .bg-glow {
+            position: fixed; top: -20%; left: 20%; width: 60vw; height: 60vw;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* Precision Cursor */
+        .cursor-dot {
+            width: 6px; height: 6px; background: var(--accent-main);
             border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000;
-            transform: translate(-50%, -50%); mix-blend-mode: difference;
-            transition: width 0.3s, height 0.3s;
+            transform: translate(-50%, -50%); transition: transform 0.1s;
         }
-        .cursor.hovered { width: 50px; height: 50px; opacity: 0.5; }
+        .cursor-outline {
+            width: 30px; height: 30px; border: 1px solid var(--accent-main);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background 0.3s;
+        }
+        .cursor-hovered .cursor-outline {
+            width: 50px; height: 50px; background: rgba(56, 189, 248, 0.1); border-color: transparent;
+        }
 
-        /* ==================== 3. FLOATING DOCK NAV ==================== */
-        .dock-wrapper {
-            position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-            z-index: 1000;
+        /* ==================== 3. ADAPTIVE NAVIGATION ==================== */
+        .desktop-nav {
+            position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 1000;
+            display: flex; gap: 0.5rem; padding: 0.5rem; border-radius: 100px;
+            background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(12px); border: 1px solid var(--border-color);
         }
-        .dock {
-            display: flex; gap: 1rem;
-            background: rgba(20, 20, 20, 0.8);
-            backdrop-filter: blur(15px);
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            border: var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .nav-link {
+            padding: 0.6rem 1.2rem; border-radius: 50px; font-weight: 500; font-size: 0.9rem;
+            color: var(--text-secondary); transition: var(--transition-smooth);
         }
-        .dock-item {
-            width: 50px; height: 50px;
-            background: #222;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; color: #fff;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-        .dock-item:hover {
-            transform: translateY(-15px) scale(1.2);
-            background: var(--primary);
-            color: #000;
-            box-shadow: 0 5px 15px rgba(204, 255, 0, 0.4);
-        }
-        /* Tooltip for Dock */
-        .dock-item::after {
-            content: attr(data-label);
-            position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
-            background: #fff; color: #000; padding: 4px 8px; border-radius: 4px;
-            font-size: 0.7rem; font-weight: bold; opacity: 0; pointer-events: none; transition: 0.2s;
-            white-space: nowrap;
-        }
-        .dock-item:hover::after { opacity: 1; top: -50px; }
-
-        /* ==================== 4. SECTIONS LAYOUT ==================== */
+        .nav-link:hover, .nav-link.active { color: var(--text-primary); background: var(--border-color); }
+        .mobile-nav { display: none; }
+        
+        /* ==================== 4. LAYOUT & TYPOGRAPHY ==================== */
         .section {
-            padding: 8rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1200px; margin: 0 auto; padding: 8rem 2rem; position: relative;
+        }
+        .section-header { margin-bottom: 4rem; }
+        .section-tag {
+            font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-main);
+            text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 1rem;
+            position: relative; padding-left: 15px;
+        }
+        .section-tag::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 8px; height: 8px; background: var(--accent-main); border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-main);
+        }
+        .section-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+
+        /* Enterprise Card */
+        .card {
+            background: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: 16px; transition: var(--transition-smooth); overflow: hidden;
             position: relative;
         }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0; transition: opacity 0.3s; z-index: 1; pointer-events: none;
+        }
+        .card:hover::before { opacity: 1; }
+        .card:hover { border-color: var(--border-highlight); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+        /* ==================== 5. HERO COMPONENT ==================== */
+        .hero { min-height: 100vh; display: flex; align-items: center; padding-top: 6rem; }
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 4rem; align-items: center; width: 100%; }
         
-        .section-header {
-            margin-bottom: 4rem;
-            border-left: 4px solid var(--primary);
-            padding-left: 2rem;
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+            background: rgba(56, 189, 248, 0.1); border: 1px solid var(--accent-glow);
+            border-radius: 100px; color: var(--accent-main); font-size: 0.85rem; font-weight: 600;
+            margin-bottom: 2rem;
         }
-        .section-title {
-            font-size: 4rem; text-transform: uppercase; font-weight: 800;
-            line-height: 1; color: var(--text);
-        }
-        .section-subtitle {
-            font-family: var(--font-code); color: var(--primary); margin-top: 0.5rem; display: block;
-        }
-
-        /* ==================== 5. HERO ==================== */
-        .hero {
-            min-height: 100vh;
-            display: flex; flex-direction: column; justify-content: center;
-            padding-top: 0;
-        }
-        .hero-grid {
-            display: grid; grid-template-columns: 1.5fr 1fr; gap: 4rem; align-items: center;
-        }
-        .hero-tag {
-            display: inline-block; padding: 0.5rem 1rem; border: 1px solid var(--primary);
-            color: var(--primary); border-radius: 50px; font-family: var(--font-code);
-            font-size: 0.9rem; margin-bottom: 2rem;
-        }
-        .hero-name {
-            font-size: 6vw; line-height: 0.9; font-weight: 800;
-            background: linear-gradient(to right, #fff, #888);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-role {
-            font-size: 2rem; margin-top: 1rem; color: var(--text-dim);
-        }
-        .hero-role span { color: var(--primary); font-family: var(--font-code); }
         
-        .hero-img-box {
-            position: relative;
-            z-index: 1;
-        }
-        .hero-img {
-            border-radius: 20px;
-            filter: grayscale(100%);
-            transition: 0.5s;
-            border: 1px solid #333;
-            box-shadow: 20px 20px 0px var(--surface-light);
-        }
-        .hero-img:hover { filter: grayscale(0%); transform: translate(-5px, -5px); box-shadow: 25px 25px 0px var(--primary); }
+        .hero-title { font-size: clamp(3rem, 6vw, 5rem); font-weight: 800; line-height: 1.05; margin-bottom: 1.5rem; letter-spacing: -0.03em; }
+        .dynamic-text { background: linear-gradient(90deg, var(--accent-main), var(--accent-alt)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-secondary); max-width: 500px; margin-bottom: 3rem; font-weight: 400; }
 
-        /* ==================== 6. SKILLS GRID ==================== */
-        .skills-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px;
+            background: var(--text-primary); color: var(--bg-base); border-radius: 8px; font-weight: 600;
+            transition: var(--transition-smooth); font-size: 1rem;
         }
-        .skill-card {
-            background: var(--surface); border: var(--border); padding: 2rem;
-            border-radius: 16px; transition: 0.3s; position: relative; overflow: hidden;
-        }
-        .skill-card:hover { border-color: var(--primary); transform: translateY(-5px); }
-        .skill-card h3 { font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        .skill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .tag {
-            background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 4px;
-            font-size: 0.8rem; color: #ccc; border: 1px solid transparent; transition: 0.2s;
-        }
-        .skill-card:hover .tag { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
+        .btn-primary:hover { background: var(--accent-main); color: #fff; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3); }
 
-        /* ==================== 7. TERMINAL EXPERIENCE ==================== */
-        .terminal {
-            background: #0d0d0d; border: 1px solid #333; border-radius: 12px;
-            font-family: var(--font-code); padding: 2rem; position: relative;
-        }
-        .terminal-header {
-            display: flex; gap: 8px; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #222;
-        }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        .hero-visual { position: relative; border-radius: 24px; padding: 1rem; border: 1px solid var(--border-color); background: var(--bg-surface); }
+        .hero-visual img { border-radius: 16px; filter: grayscale(100%); transition: var(--transition-smooth); }
+        .hero-visual:hover img { filter: grayscale(0%); }
+
+        /* ==================== 6. BENTO SKILLS GRID ==================== */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .bento-item { padding: 2.5rem; display: flex; flex-direction: column; }
+        .bento-item.large { grid-column: span 2; }
         
-        .exp-row {
-            display: grid; grid-template-columns: 150px 1fr; gap: 2rem; margin-bottom: 3rem;
-            opacity: 0.7; transition: 0.3s;
+        .bento-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--accent-main); margin-bottom: 1.5rem; border: 1px solid var(--border-color); }
+        .bento-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 1rem; }
+        .bento-desc { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 2rem; flex-grow: 1; }
+        
+        .tag-wrap { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+        .tech-tag {
+            padding: 8px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+            border-radius: 6px; font-size: 0.85rem; font-family: var(--font-mono); color: var(--text-secondary);
+            transition: var(--transition-smooth); position: relative; overflow: hidden;
         }
-        .exp-row:hover { opacity: 1; }
-        .exp-date { color: var(--primary); }
-        .exp-title { font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem; }
-        .exp-company { color: var(--accent); margin-bottom: 1rem; display: block; }
-        .exp-desc { font-size: 0.9rem; color: #aaa; }
+        /* Hardware highlight logic */
+        .tech-tag.hardware { border-color: rgba(56, 189, 248, 0.3); color: var(--text-primary); }
+        .tech-tag:hover { border-color: var(--accent-main); color: #fff; background: rgba(56, 189, 248, 0.1); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56,189,248,0.15); }
 
-        /* ==================== 8. PROJECT CARDS (BIG) ==================== */
-        .projects-wrapper { display: flex; flex-direction: column; gap: 4rem; }
-        .project-item {
-            display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem;
-            align-items: center; border: var(--border); padding: 2rem; border-radius: 24px;
-            background: var(--surface); transition: 0.3s;
+        /* ==================== 7. PRECISION TIMELINE ==================== */
+        .timeline-container { position: relative; padding-left: 2rem; border-left: 1px solid var(--border-color); margin-left: 1rem; }
+        .timeline-progress {
+            position: absolute; top: 0; left: -1px; width: 3px; background: var(--accent-main);
+            height: 0%; transition: height 0.5s ease; box-shadow: 0 0 10px var(--accent-main);
         }
-        .project-item:hover { border-color: var(--primary); }
-        .project-visual {
-            height: 300px; border-radius: 16px; overflow: hidden; position: relative;
+
+        .exp-item { position: relative; margin-bottom: 4rem; padding-left: 2rem; }
+        .exp-item::before {
+            content: ''; position: absolute; left: -2.35rem; top: 0; width: 12px; height: 12px;
+            background: var(--bg-base); border: 2px solid var(--accent-main); border-radius: 50%;
+            transition: var(--transition-smooth); z-index: 2;
         }
-        .project-visual img {
-            width: 100%; height: 100%; object-fit: cover; transition: 0.5s;
+        .exp-item:hover::before { background: var(--accent-main); box-shadow: 0 0 15px var(--accent-glow); transform: scale(1.2); }
+
+        .exp-date { font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent-main); margin-bottom: 0.5rem; display: block; font-weight: 700; }
+        .exp-role { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .exp-company { color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 1.5rem; display: block; }
+        .exp-details { color: var(--text-secondary); font-size: 1rem; list-style: none; }
+        .exp-details li { position: relative; padding-left: 1.5rem; margin-bottom: 0.8rem; }
+        .exp-details li::before { content: '→'; position: absolute; left: 0; color: var(--border-highlight); font-family: var(--font-mono); }
+        .highlight-text { color: var(--text-primary); font-weight: 600; font-family: var(--font-mono); font-size: 0.95rem; }
+
+        /* ==================== 8. DASHBOARD PROJECT CARDS ==================== */
+        .project-grid { display: grid; gap: 3rem; }
+        .project-card {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+            background: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: 20px; overflow: hidden; transition: var(--transition-smooth);
         }
-        .project-item:hover .project-visual img { transform: scale(1.05); }
-        .project-info h3 { font-size: 2rem; margin-bottom: 1rem; }
-        .project-info p { color: var(--text-dim); margin-bottom: 2rem; font-size: 1rem; }
+        .project-card:hover { border-color: var(--border-highlight); }
+        .project-img { position: relative; border-right: 1px solid var(--border-color); overflow: hidden; background: #000; }
+        .project-img img { height: 100%; object-fit: cover; opacity: 0.8; transition: transform 0.7s ease; }
+        .project-card:hover .project-img img { transform: scale(1.05); opacity: 1; }
+        
+        .project-content { padding: 4rem; display: flex; flex-direction: column; justify-content: center; }
+        .project-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-main); text-transform: uppercase; margin-bottom: 1rem; display: block; }
+        .project-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .project-desc { color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 1.1rem; }
+        
         .btn-link {
-            display: inline-flex; align-items: center; gap: 10px;
-            color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-            border-bottom: 1px solid transparent; transition: 0.3s;
+            font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-primary);
+            display: inline-flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; transition: 0.3s;
         }
-        .btn-link:hover { border-bottom-color: var(--primary); gap: 15px; }
+        .btn-link:hover { color: var(--accent-main); border-color: var(--accent-main); gap: 12px; }
 
         /* ==================== 9. CONTACT FOOTER ==================== */
-        .footer-cta {
-            text-align: center; padding: 6rem 0;
-            background: linear-gradient(to top, var(--surface), transparent);
+        .footer { text-align: center; padding: 8rem 2rem 4rem 2rem; border-top: 1px solid var(--border-color); margin-top: 4rem; }
+        .contact-box {
+            max-width: 800px; margin: 0 auto; padding: 4rem;
+            background: linear-gradient(180deg, var(--bg-surface) 0%, transparent 100%);
+            border: 1px solid var(--border-color); border-radius: 24px; border-bottom: none;
         }
-        .big-email {
-            font-size: 5vw; font-weight: 900; color: transparent;
-            -webkit-text-stroke: 1px rgba(255,255,255,0.3); transition: 0.3s;
-            display: block; margin-top: 2rem;
+        .email-link {
+            font-size: clamp(2rem, 5vw, 4rem); font-weight: 800; color: var(--text-primary);
+            display: inline-block; margin: 2rem 0; transition: var(--transition-smooth); letter-spacing: -1px;
         }
-        .big-email:hover { color: var(--primary); -webkit-text-stroke: 1px var(--primary); cursor: pointer; }
+        .email-link:hover { color: var(--accent-main); transform: scale(1.05); }
+        
+        .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; }
+        .social-links a {
+            width: 50px; height: 50px; border-radius: 12px; background: var(--bg-base); border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--text-secondary); transition: 0.3s;
+        }
+        .social-links a:hover { color: var(--text-primary); border-color: var(--text-primary); transform: translateY(-3px); }
 
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 900px) {
-            .hero-grid, .project-item { grid-template-columns: 1fr; }
-            .hero-name { font-size: 3.5rem; }
-            .section-title { font-size: 2.5rem; }
-            .project-visual { height: 200px; }
-            .exp-row { grid-template-columns: 1fr; gap: 0.5rem; }
-            .exp-date { margin-bottom: 0.5rem; display: block; }
+        /* ==================== 10. MOBILE & TABLET DYNAMICS ==================== */
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr; text-align: center; }
+            .hero-desc { margin: 0 auto 3rem auto; }
+            .hero-badge { margin: 0 auto 2rem auto; }
+            .bento-grid { grid-template-columns: 1fr 1fr; }
+            .project-card { grid-template-columns: 1fr; }
+            .project-img { border-right: none; border-bottom: 1px solid var(--border-color); height: 250px; }
+            .project-content { padding: 2.5rem; }
         }
+
+        @media (max-width: 768px) {
+            .desktop-nav { display: none; }
+            
+            .mobile-nav {
+                display: flex; position: fixed; bottom: 1rem; left: 1rem; right: 1rem; z-index: 1000;
+                background: rgba(24, 24, 27, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border: 1px solid var(--border-highlight); border-radius: 20px;
+                padding: 0.8rem 1rem; justify-content: space-around; align-items: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+            .m-nav-item {
+                display: flex; flex-direction: column; align-items: center; gap: 4px;
+                color: var(--text-secondary); font-size: 0.7rem; font-weight: 600; font-family: var(--font-mono); transition: 0.3s;
+            }
+            .m-nav-item i { font-size: 1.4rem; }
+            .m-nav-item.active, .m-nav-item:active { color: var(--accent-main); transform: translateY(-2px); }
+
+            .bento-grid { grid-template-columns: 1fr; }
+            .bento-item.large { grid-column: span 1; }
+            .section { padding: 5rem 1.5rem; }
+            .contact-box { padding: 2rem 1rem; }
+            .card::before { display: none; }
+            .timeline-container { padding-left: 1.5rem; }
+            .exp-item { padding-left: 1.5rem; }
+            .exp-item::before { left: -1.85rem; width: 10px; height: 10px; }
+        }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
 
-    <div class="noise-bg"></div>
-    <div class="cursor"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
 
-    <div class="dock-wrapper">
-        <nav class="dock">
-            <a href="#hero" class="dock-item hover-trigger" data-label="Home"><i class="ri-home-5-line"></i></a>
-            <a href="#about" class="dock-item hover-trigger" data-label="About"><i class="ri-user-smile-line"></i></a>
-            <a href="#skills" class="dock-item hover-trigger" data-label="Skills"><i class="ri-cpu-line"></i></a>
-            <a href="#projects" class="dock-item hover-trigger" data-label="Projects"><i class="ri-folder-open-line"></i></a>
-            <a href="#contact" class="dock-item hover-trigger" data-label="Contact"><i class="ri-mail-send-line"></i></a>
-        </nav>
-    </div>
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
 
-    <section class="section hero" id="hero">
+    <nav class="desktop-nav">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#expertise" class="nav-link">Expertise</a>
+        <a href="#experience" class="nav-link">Experience</a>
+        <a href="#projects" class="nav-link">Projects</a>
+    </nav>
+
+    <nav class="mobile-nav">
+        <a href="#home" class="m-nav-item active"><i class="ri-home-5-line"></i><span>Home</span></a>
+        <a href="#expertise" class="m-nav-item"><i class="ri-stack-line"></i><span>Skills</span></a>
+        <a href="#experience" class="m-nav-item"><i class="ri-history-line"></i><span>Log</span></a>
+        <a href="#projects" class="m-nav-item"><i class="ri-macbook-line"></i><span>Work</span></a>
+    </nav>
+
+    <section class="section hero" id="home">
         <div class="hero-grid">
-            <div class="hero-content">
-                <span class="hero-tag">Hey My name is </span>
-                <h1 class="hero-name">RITESH DALVI</h1>
-                <div class="hero-role">
-                    I build <span id="typewriter"></span>
+            <div class="hero-content reveal">
+                <div class="hero-badge hover-target">
+                    <i class="ri-server-line"></i> Tier-1 Infrastructure Status: Online
                 </div>
-                <p style="margin-top: 2rem; color: #aaa; max-width: 500px; font-size: 1.1rem;">
-                    A hybrid <strong>Storage Engineer</strong> & <strong>Frontend Developer</strong> based in Mumbai. 
-                    I specialize in managing massive data infrastructure (SAN/NAS) while crafting pixel-perfect web experiences.
+                <h1 class="hero-title">
+                    I Engineer <br>
+                    <span class="dynamic-text" id="typewriter"></span>
+                </h1>
+                <p class="hero-desc">
+                    A hybrid Storage Engineer & Frontend Developer. I specialize in provisioning Tier-1 enterprise arrays (Huawei Dorado & Dell PowerMax) and building high-performance web applications.
                 </p>
-                <div style="margin-top: 3rem; display: flex; gap: 1.5rem;">
-                    <a href="#projects" class="btn-link">View My Work <i class="ri-arrow-right-line"></i></a>
-                    <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" class="btn-link" style="color: #fff;">LinkedIn <i class="ri-arrow-right-up-line"></i></a>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="#projects" class="btn-primary hover-target">View Deployments <i class="ri-arrow-right-line"></i></a>
+                    <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" class="btn-primary hover-target" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);">LinkedIn</a>
                 </div>
-            </div>
-            <div class="hero-img-box hover-trigger">
-                <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi" class="hero-img">
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="skills">
-        <div class="section-header">
-            <h2 class="section-title">Technical <span style="color:var(--primary)">Arsenal</span></h2>
-            <span class="section-subtitle">What I bring to the table</span>
-        </div>
-
-        <div class="skills-grid">
-            <div class="skill-card hover-trigger">
-                <h3><i class="ri-database-2-fill" style="color: var(--primary);"></i> Storage Infrastructure</h3>
-                <div class="skill-list">
-                    <span class="tag">Dell EMC PowerStore</span>
-                    <span class="tag">Hitachi VSP</span>
-                    <span class="tag">Huawei OceanStor</span>
-                    <span class="tag">SAN Zoning</span>
-                    <span class="tag">LUN Masking</span>
-                    <span class="tag">RAID Config</span>
-                    <span class="tag">Disaster Recovery</span>
-                </div>
-            </div>
-
-            <div class="skill-card hover-trigger">
-                <h3><i class="ri-code-s-slash-line" style="color: var(--accent);"></i> Web Development</h3>
-                <div class="skill-list">
-                    <span class="tag">React.js</span>
-                    <span class="tag">JavaScript (ES6+)</span>
-                    <span class="tag">HTML5 & CSS3</span>
-                    <span class="tag">Tailwind CSS</span>
-                    <span class="tag">Node.js Basics</span>
-                    <span class="tag">Git & GitHub</span>
-                    <span class="tag">Responsive Design</span>
-                </div>
-            </div>
-
-            <div class="skill-card hover-trigger">
-                <h3><i class="ri-tools-fill" style="color: #fff;"></i> Tools & Design</h3>
-                <div class="skill-list">
-                    <span class="tag">Figma</span>
-                    <span class="tag">VS Code</span>
-                    <span class="tag">Canva</span>
-                    <span class="tag">Adobe XD</span>
-                    <span class="tag">Linux CLI</span>
-                    <span class="tag">Putty</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section" id="about">
-        <div class="section-header">
-            <h2 class="section-title">System <span style="color:var(--primary)">Logs</span></h2>
-            <span class="section-subtitle">My professional journey</span>
-        </div>
-
-        <div class="terminal hover-trigger">
-            <div class="terminal-header">
-                <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
             </div>
             
-            <div class="exp-row">
-                <div class="exp-date">> OCT 2025 - NOW</div>
-                <div class="exp-info">
-                    <h4 class="exp-title">L1 Storage Engineer</h4>
-                    <span class="exp-company">@ BSE (Bombay Stock Exchange)</span>
-                    <p class="exp-desc">Managing mission-critical financial data storage. Handling SAN zoning, LUN provisioning, and proactive health monitoring of Dell & Hitachi arrays. Ensuring 99.99% uptime for trading data.</p>
+            <div class="hero-visual reveal" style="transition-delay: 0.2s;">
+                <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi Profile">
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="expertise">
+        <div class="section-header reveal">
+            <span class="section-tag">Core Architecture</span>
+            <h2 class="section-title">Technical Arsenal</h2>
+        </div>
+
+        <div class="bento-grid">
+            <div class="card bento-item large reveal">
+                <div class="bento-icon"><i class="ri-database-2-line"></i></div>
+                <h3 class="bento-title">Enterprise Storage Operations</h3>
+                <p class="bento-desc">Focused on precision health monitoring, logical provisioning, and capacity management for Tier-1, ultra-high-end storage ecosystems ensuring 99.99% data availability.</p>
+                <div class="tag-wrap">
+                    <span class="tech-tag hardware hover-target">Huawei Dorado 18000</span>
+                    <span class="tech-tag hardware hover-target">Dell PowerMax</span>
+                    <span class="tech-tag hardware hover-target">Hitachi VSP</span>
+                    <span class="tech-tag">LUN Provisioning</span>
+                    <span class="tech-tag">Capacity Expansion</span>
+                    <span class="tech-tag">Health Monitoring</span>
+                    <span class="tech-tag">Alert Logic</span>
                 </div>
             </div>
 
-            <div class="exp-row">
-                <div class="exp-date">> JUN - SEP 2025</div>
-                <div class="exp-info">
-                    <h4 class="exp-title">Software Developer</h4>
-                    <span class="exp-company">@ Picsise Technologies Pvt</span>
-                    <p class="exp-desc">Developed scalable web applications. Optimized database queries which reduced load times by 40%. Implemented responsive UI components using React.</p>
+            <div class="card bento-item reveal" style="transition-delay: 0.1s;">
+                <div class="bento-icon"><i class="ri-terminal-window-line"></i></div>
+                <h3 class="bento-title">Frontend UI</h3>
+                <p class="bento-desc">Architecting responsive, scalable, and highly interactive web experiences.</p>
+                <div class="tag-wrap">
+                    <span class="tech-tag">React.js</span>
+                    <span class="tech-tag">JavaScript ES6</span>
+                    <span class="tech-tag">Tailwind CSS</span>
+                    <span class="tech-tag">HTML5 / CSS3</span>
                 </div>
             </div>
 
-            <div class="exp-row">
-                <div class="exp-date">> DEC 24 - MAR 25</div>
-                <div class="exp-info">
-                    <h4 class="exp-title">Frontend Developer Intern</h4>
-                    <span class="exp-company">@ Sync Solutions</span>
-                    <p class="exp-desc">Built interactive user interfaces. Translated Figma designs into clean, functional HTML/CSS/JS code. Assisted senior devs in debugging & testing.</p>
+            <div class="card bento-item reveal" style="transition-delay: 0.2s;">
+                <div class="bento-icon"><i class="ri-settings-4-line"></i></div>
+                <h3 class="bento-title">System Tools</h3>
+                <p class="bento-desc">The software and environments utilized for daily operations and development.</p>
+                <div class="tag-wrap">
+                    <span class="tech-tag">Linux CLI</span>
+                    <span class="tech-tag">Putty</span>
+                    <span class="tech-tag">Git/GitHub</span>
+                    <span class="tech-tag">Figma</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="experience">
+        <div class="section-header reveal">
+            <span class="section-tag">Professional Log</span>
+            <h2 class="section-title">Operational History</h2>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-progress" id="timeline-progress"></div>
+            
+            <div class="exp-item reveal">
+                <span class="exp-date">OCT 2025 — PRESENT</span>
+                <h3 class="exp-role">L1 Storage Engineer</h3>
+                <span class="exp-company">BSE (Bombay Stock Exchange)</span>
+                <ul class="exp-details">
+                    <li>Execute proactive health monitoring and diagnostics for mission-critical financial data storage environments.</li>
+                    <li>Perform logical LUN provisioning and precise capacity expansions explicitly on <span class="highlight-text">Huawei OceanStor Dorado 18000</span>, <span class="highlight-text">Dell PowerMax</span>, and <span class="highlight-text">Hitachi VSP</span> enterprise arrays.</li>
+                    <li>Ensure zero-downtime operations and immediate response to array alerts to secure and optimize real-time trading data architectures.</li>
+                </ul>
+            </div>
+
+            <div class="exp-item reveal">
+                <span class="exp-date">JUN 2025 — SEP 2025</span>
+                <h3 class="exp-role">Software Developer</h3>
+                <span class="exp-company">Picsise Technologies Pvt</span>
+                <ul class="exp-details">
+                    <li>Developed responsive web applications, focusing on clean architecture and modular component design.</li>
+                    <li>Optimized database queries and API calls, significantly reducing latency and improving page load speeds by 40%.</li>
+                </ul>
+            </div>
+
+            <div class="exp-item reveal">
+                <span class="exp-date">DEC 2024 — MAR 2025</span>
+                <h3 class="exp-role">Frontend Developer Intern</h3>
+                <span class="exp-company">Sync Solutions</span>
+                <ul class="exp-details">
+                    <li>Engineered pixel-perfect user interfaces from complex Figma designs using raw HTML, CSS, and JS.</li>
+                    <li>Collaborated directly with senior engineers on debugging, UI testing, and cross-browser validation.</li>
+                </ul>
             </div>
         </div>
     </section>
 
     <section class="section" id="projects">
-        <div class="section-header">
-            <h2 class="section-title">Selected <span style="color:var(--primary)">Works</span></h2>
-            <span class="section-subtitle">Code deployed to production</span>
+        <div class="section-header reveal">
+            <span class="section-tag">Deployed Code</span>
+            <h2 class="section-title">Production Builds</h2>
         </div>
 
-        <div class="projects-wrapper">
+        <div class="project-grid">
             
-            <div class="project-item hover-trigger">
-                <div class="project-visual">
+            <div class="card project-card reveal">
+                <div class="project-img">
                     <img src="https://images.unsplash.com/photo-1596462502278-27bfdd403348?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="GlamZone">
                 </div>
-                <div class="project-info">
-                    <span class="tag" style="background:var(--primary); color:black; font-weight:bold;">E-COMMERCE</span>
-                    <h3>GlamZone Skincare</h3>
-                    <p>A comprehensive beauty e-commerce platform featuring dynamic product filtering, cart functionality, and a responsive mobile-first design.</p>
-                    <a href="https://glamzonskincare.in/index.html" class="btn-link">View Live Project <i class="ri-arrow-right-line"></i></a>
+                <div class="project-content">
+                    <span class="project-label">E-Commerce Platform</span>
+                    <h3 class="project-title">GlamZone Skincare</h3>
+                    <p class="project-desc">A comprehensive beauty platform engineered with dynamic product filtering, cart state management, and a highly responsive mobile-first UI architecture.</p>
+                    <div><a href="https://glamzonskincare.in/index.html" class="btn-link hover-target" target="_blank">Access Live Site <i class="ri-arrow-right-up-line"></i></a></div>
                 </div>
             </div>
 
-            <div class="project-item hover-trigger">
-                <div class="project-visual">
+            <div class="card project-card reveal">
+                <div class="project-img">
                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="QuickCabs">
                 </div>
-                <div class="project-info">
-                    <span class="tag" style="background:var(--accent); font-weight:bold;">ADMIN DASHBOARD</span>
-                    <h3>QuickCabs Admin</h3>
-                    <p>A fleet management dashboard allowing admins to track taxis, manage driver schedules, and view earnings analytics in real-time.</p>
-                    <a href="https://www.quickcabpune.com/index.html" class="btn-link">View Live Project <i class="ri-arrow-right-line"></i></a>
+                <div class="project-content">
+                    <span class="project-label">SaaS Dashboard</span>
+                    <h3 class="project-title">QuickCabs Admin</h3>
+                    <p class="project-desc">A professional fleet management dashboard enabling administrators to track logistics, monitor driver schedules, and analyze earnings through dynamic visual metrics.</p>
+                    <div><a href="https://www.quickcabpune.com/index.html" class="btn-link hover-target" target="_blank">Access Live Site <i class="ri-arrow-right-up-line"></i></a></div>
                 </div>
             </div>
 
-            <div class="project-item hover-trigger">
-                <div class="project-visual">
+            <div class="card project-card reveal">
+                <div class="project-img">
                     <img src="https://images.unsplash.com/photo-1633167606207-d840b5070fc2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Chembuddy">
                 </div>
-                <div class="project-info">
-                    <span class="tag" style="background:#fff; color:black; font-weight:bold;">ED-TECH APP</span>
-                    <h3>Virtual Chembuddy</h3>
-                    <p>An interactive educational tool that simulates chemical reactions visually, helping students understand stoichiometry safely.</p>
-                    <a href="#" class="btn-link">View Case Study <i class="ri-arrow-right-line"></i></a>
+                <div class="project-content">
+                    <span class="project-label">Ed-Tech Simulator</span>
+                    <h3 class="project-title">Virtual Chembuddy</h3>
+                    <p class="project-desc">An interactive simulation tool designed to visually render chemical reactions, abstracting complex stoichiometry into an accessible, safe digital environment.</p>
+                    <div><a href="#" class="btn-link hover-target">Review Repository <i class="ri-git-branch-line"></i></a></div>
                 </div>
             </div>
 
         </div>
     </section>
 
-    <footer class="section footer-cta" id="contact">
-        <p style="font-family: var(--font-code); color: var(--primary);">WHAT'S NEXT?</p>
-        <h2 style="font-size: 2.5rem; margin-top: 1rem;">Let's work together.</h2>
-        <p style="color: #888; max-width: 600px; margin: 1rem auto;">
-            Currently looking for new opportunities. Whether you have a question about storage infrastructure or want to build a website, my inbox is always open.
-        </p>
-        
-        <a href="mailto:riteshrdalavi3053@gmail.com" class="big-email hover-trigger">SAY HELLO</a>
-
-        <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 2rem; font-size: 1.5rem;">
-            <a href="https://linkedin.com/in/ritesh-dalvi-154112210" class="hover-trigger"><i class="ri-linkedin-fill"></i></a>
-            <a href="https://github.com/ritzdalavi" class="hover-trigger"><i class="ri-github-fill"></i></a>
-            <a href="#" class="hover-trigger"><i class="ri-instagram-fill"></i></a>
+    <footer class="footer reveal">
+        <div class="contact-box">
+            <span class="section-tag">Initialization</span>
+            <h2 class="section-title" style="font-size: 2rem;">Ready to collaborate?</h2>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">Available for new opportunities handling Tier-1 arrays and building modern web apps.</p>
+            
+            <a href="mailto:riteshrdalavi3053@gmail.com" class="email-link hover-target">SAY HELLO</a>
+            
+            <div class="social-links">
+                <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" class="hover-target"><i class="ri-linkedin-fill"></i></a>
+                <a href="https://github.com/ritzdalavi" target="_blank" class="hover-target"><i class="ri-github-line"></i></a>
+                <a href="#" class="hover-target"><i class="ri-mail-send-line"></i></a>
+            </div>
         </div>
-        
-        <p style="margin-top: 4rem; font-size: 0.8rem; color: #444;">
-            &copy; 2026 Ritesh Dalvi. Built with precision.
+        <p style="margin-top: 4rem; font-family: var(--font-mono); font-size: 0.8rem; color: #555;">
+            SYSTEM.OUT.PRINTLN("© 2026 RITESH DALVI");
         </p>
     </footer>
 
     <script>
-        // 1. TYPEWRITER EFFECT
+        // 1. DYNAMIC TYPEWRITER (Precise & Fast)
         const textElement = document.getElementById('typewriter');
-        const phrases = ["Robust Storage Solutions", "Interactive Websites", "User Interfaces", "Data Reliability"];
-        let phraseIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
+        const phrases = ["Tier-1 Storage.", "Responsive UI.", "System Uptime.", "Web Applications."];
+        let phraseIndex = 0, charIndex = 0, isDeleting = false;
 
         function type() {
-            const currentPhrase = phrases[phraseIndex];
-            
-            if (isDeleting) {
-                textElement.textContent = currentPhrase.substring(0, charIndex - 1);
-                charIndex--;
-            } else {
-                textElement.textContent = currentPhrase.substring(0, charIndex + 1);
-                charIndex++;
-            }
+            const current = phrases[phraseIndex];
+            if (isDeleting) charIndex--; else charIndex++;
+            textElement.textContent = current.substring(0, charIndex);
 
-            if (!isDeleting && charIndex === currentPhrase.length) {
-                isDeleting = true;
-                setTimeout(type, 2000); // Pause at end
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                phraseIndex = (phraseIndex + 1) % phrases.length;
-                setTimeout(type, 500); // Pause before next word
-            } else {
-                setTimeout(type, isDeleting ? 50 : 100);
-            }
+            let speed = isDeleting ? 30 : 80; 
+            if (!isDeleting && charIndex === current.length) { speed = 2500; isDeleting = true; } 
+            else if (isDeleting && charIndex === 0) { speed = 500; isDeleting = false; phraseIndex = (phraseIndex + 1) % phrases.length; }
+            setTimeout(type, speed);
         }
-        document.addEventListener('DOMContentLoaded', type);
+        document.addEventListener("DOMContentLoaded", type);
 
-        // 2. CUSTOM CURSOR
-        const cursor = document.querySelector('.cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
+        // 2. PRECISION CURSOR
+        const cursorDot = document.getElementById('cursor-dot');
+        const cursorOutline = document.getElementById('cursor-outline');
+        let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            cursorDot.style.left = `${mouseX}px`; cursorDot.style.top = `${mouseY}px`;
         });
 
-        // Hover Effect
-        const hoverTargets = document.querySelectorAll('.hover-trigger, a, button');
-        hoverTargets.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        function animateCursor() {
+            outlineX += (mouseX - outlineX) * 0.2;
+            outlineY += (mouseY - outlineY) * 0.2;
+            cursorOutline.style.left = `${outlineX}px`; cursorOutline.style.top = `${outlineY}px`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('.hover-target, a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hovered'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hovered'));
         });
 
-        // 3. SCROLL REVEAL (Simple Intersection Observer)
+        // 3. DESKTOP CARD GLOW EFFECT
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // 4. TIMELINE PROGRESS SCROLL
+        const timelineProgress = document.getElementById('timeline-progress');
+        const timelineContainer = document.querySelector('.timeline-container');
+        
+        window.addEventListener('scroll', () => {
+            if(!timelineContainer) return;
+            const rect = timelineContainer.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            if (rect.top < windowHeight * 0.8 && rect.bottom > 0) {
+                let scrollPercentage = ((windowHeight * 0.8 - rect.top) / rect.height) * 100;
+                scrollPercentage = Math.max(0, Math.min(100, scrollPercentage));
+                timelineProgress.style.height = `${scrollPercentage}%`;
+            }
+        });
+
+        // 5. ACTIVE NAV STATE
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link, .m-nav-item');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) { current = section.getAttribute('id'); }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // 6. STAGGERED SCROLL REVEAL
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
-        // Apply fade-in animation styles to sections
-        document.querySelectorAll('.section').forEach(section => {
-            section.style.opacity = 0;
-            section.style.transform = 'translateY(50px)';
-            section.style.transition = 'all 0.8s ease-out';
-            observer.observe(section);
-        });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>
