@@ -7,13 +7,12 @@
 
     <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620735.png" type="image/x-icon">
     
-    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     
-    <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
@@ -33,6 +32,8 @@
             
             --font-sans: 'Outfit', sans-serif;
             --font-mono: 'Space Mono', monospace;
+            
+            --nav-height: 80px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -48,6 +49,7 @@
 
         a { text-decoration: none; color: inherit; }
         img { width: 100%; display: block; object-fit: cover; }
+        ul { list-style: none; }
 
         /* ==================== 2. ANIMATED BACKGROUND ==================== */
         .ambient-bg {
@@ -74,16 +76,41 @@
         .noise-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('https://grainy-gradients.vercel.app/noise.svg');
-            opacity: 0.05; z-index: -1; pointer-events: none;
+            opacity: 0.04; z-index: -1; pointer-events: none;
         }
 
-        /* ==================== 3. FLOATING GLASS NAVIGATION ==================== */
-        nav {
-            position: fixed; top: 2rem; left: 50%; transform: translateX(-50%);
-            z-index: 1000; padding: 0.8rem 2rem; border-radius: 50px;
-            background: rgba(3, 0, 20, 0.4); backdrop-filter: blur(20px);
+        /* ==================== 3. RESPONSIVE GLASS NAVIGATION ==================== */
+        .header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            z-index: 1000; transition: 0.3s ease;
+            padding: 1rem 0;
+        }
+        
+        .header.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(3, 0, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .nav-container {
+            max-width: 1300px; margin: 0 auto; padding: 0 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .nav-logo {
+            font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700;
+            color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+            z-index: 1001;
+        }
+
+        .nav-links {
+            display: flex; gap: 2.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.8rem 2.5rem; border-radius: 50px;
             border: 1px solid var(--glass-border);
-            display: flex; gap: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
         }
 
         .nav-link {
@@ -93,8 +120,20 @@
 
         .nav-link:hover, .nav-link.active { color: var(--neon-cyan); }
         
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 0%; height: 2px;
+            background: var(--neon-cyan); transition: 0.3s ease;
+        }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+
+        .menu-btn {
+            display: none; font-size: 1.8rem; color: var(--text-main);
+            cursor: pointer; z-index: 1001; transition: 0.3s;
+        }
+        .menu-btn:hover { color: var(--neon-cyan); }
+
         /* ==================== 4. LAYOUT & GLASS CARDS ==================== */
-        .section { max-width: 1300px; margin: 0 auto; padding: 8rem 2rem; }
+        .section { max-width: 1300px; margin: 0 auto; padding: 8rem 2rem 4rem; }
         
         .section-header { text-align: center; margin-bottom: 5rem; }
         .section-tag {
@@ -102,7 +141,7 @@
             text-transform: uppercase; font-size: 0.9rem; letter-spacing: 3px;
             display: block; margin-bottom: 1rem;
         }
-        .section-title { font-size: 3.5rem; font-weight: 900; letter-spacing: -1px; }
+        .section-title { font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -1px; }
 
         .glass-card {
             background: var(--glass-bg); backdrop-filter: blur(12px);
@@ -116,11 +155,11 @@
             transition: 0.5s;
         }
 
-        .glass-card:hover { transform: translateY(-10px); border-color: var(--glass-glow); box-shadow: 0 20px 40px rgba(0, 240, 255, 0.1); }
+        .glass-card:hover { transform: translateY(-5px); border-color: var(--glass-glow); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); }
         .glass-card:hover::before { left: 150%; transition: 0.8s ease-in-out; }
 
         /* ==================== 5. HERO ==================== */
-        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; }
+        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; padding-top: 10rem; }
         .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
         
         .hero-badge {
@@ -136,19 +175,20 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
         }
 
-        .hero-title { font-size: clamp(3.5rem, 6vw, 5.5rem); font-weight: 900; line-height: 1; margin-bottom: 1.5rem; }
+        .hero-title { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem; }
         .gradient-text {
             background: linear-gradient(to right, var(--neon-cyan), var(--neon-purple));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        .hero-desc { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 3rem; max-width: 500px; }
+        .hero-desc { font-size: 1.15rem; color: var(--text-muted); margin-bottom: 3rem; max-width: 500px; }
 
         .btn-glow {
             display: inline-flex; align-items: center; gap: 10px; padding: 15px 35px;
             background: transparent; color: var(--text-main); border: 1px solid var(--neon-cyan);
             border-radius: 100px; font-family: var(--font-mono); font-weight: bold;
             position: relative; overflow: hidden; transition: 0.3s; z-index: 1;
+            font-size: 0.9rem; letter-spacing: 1px;
         }
         .btn-glow::before {
             content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
@@ -158,91 +198,108 @@
         .btn-glow:hover { color: #000; box-shadow: 0 0 20px var(--neon-cyan); }
 
         .hero-visual { position: relative; }
-        .hero-img-wrap { border-radius: 30px; overflow: hidden; border: 2px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .hero-img-wrap img { transition: 0.5s ease; filter: contrast(1.1) saturate(1.2); }
-        .hero-img-wrap:hover img { transform: scale(1.05); }
-
-        /* Floating tech elements around hero */
-        .float-icon { position: absolute; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); border: 1px solid var(--glass-border); animation: float 4s ease-in-out infinite; }
-        .icon-1 { top: -20px; right: -20px; animation-delay: 0s; }
-        .icon-2 { bottom: 30px; left: -30px; animation-delay: 2s; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .hero-img-wrap { border-radius: 30px; overflow: hidden; border: 2px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.8); aspect-ratio: 4/5; }
+        .hero-img-wrap img { transition: 0.5s ease; filter: contrast(1.1) saturate(1.1); height: 100%; width: 100%; object-fit: cover; }
+        .hero-img-wrap:hover img { transform: scale(1.03); }
 
         /* ==================== 6. SKILLS & LOGOS ==================== */
-        .logo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 2rem; margin-top: 3rem; }
+        .logo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
         .logo-item {
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 12px;
             padding: 2rem 1rem; background: var(--glass-bg); border: 1px solid var(--glass-border);
-            border-radius: 16px; transition: 0.3s;
+            border-radius: 16px; transition: 0.3s; cursor: crosshair;
         }
         .logo-item:hover { border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.05); transform: translateY(-5px); }
-        .logo-item img { width: 50px; height: 50px; filter: grayscale(100%) brightness(200%); transition: 0.3s; }
-        .logo-item:hover img { filter: grayscale(0%) brightness(100%); }
-        .logo-name { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+        .logo-item img { width: 45px; height: 45px; filter: grayscale(100%) brightness(200%) opacity(0.7); transition: 0.3s; }
+        .logo-item:hover img { filter: grayscale(0%) brightness(100%) opacity(1); }
+        .logo-name { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); text-align: center; }
 
         /* ==================== 7. EXPERIENCE TIMELINE ==================== */
-        .timeline { position: relative; padding-left: 3rem; border-left: 2px solid var(--glass-border); }
+        .timeline { position: relative; padding-left: 3rem; border-left: 2px solid var(--glass-border); margin: 0 auto; max-width: 900px; }
         .timeline::before {
             content: ''; position: absolute; top: 0; left: -2px; width: 2px; height: 100%;
             background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-purple), transparent);
         }
-        .exp-card { margin-bottom: 4rem; position: relative; }
+        .exp-card { margin-bottom: 3rem; position: relative; padding: 2.5rem; }
         .exp-dot {
-            position: absolute; top: 0; left: -3.6rem; width: 20px; height: 20px;
+            position: absolute; top: 2.5rem; left: -3.6rem; width: 20px; height: 20px;
             background: var(--bg-dark); border: 3px solid var(--neon-cyan); border-radius: 50%;
             box-shadow: 0 0 15px var(--neon-cyan);
         }
-        .exp-date { color: var(--neon-purple); font-family: var(--font-mono); font-weight: bold; margin-bottom: 0.5rem; display: block; }
-        .exp-title { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .exp-date { color: var(--neon-purple); font-family: var(--font-mono); font-weight: bold; margin-bottom: 0.5rem; display: block; font-size: 0.9rem; }
+        .exp-title { font-size: 1.6rem; margin-bottom: 0.2rem; }
         .exp-company { color: var(--neon-cyan); font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 500; }
         .exp-list { list-style: none; color: var(--text-muted); }
-        .exp-list li { margin-bottom: 0.8rem; padding-left: 1.5rem; position: relative; }
-        .exp-list li::before { content: '▹'; position: absolute; left: 0; color: var(--neon-cyan); }
+        .exp-list li { margin-bottom: 0.8rem; padding-left: 1.8rem; position: relative; }
+        .exp-list li::before { content: '▹'; position: absolute; left: 0; color: var(--neon-cyan); font-weight: bold; font-family: var(--font-mono); }
 
-        /* ==================== 8. PROJECTS (HOVER 3D EFFECT) ==================== */
-        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem; }
+        /* ==================== 8. PROJECTS ==================== */
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
         .proj-card { padding: 0; display: flex; flex-direction: column; }
-        .proj-img { height: 250px; overflow: hidden; border-bottom: 1px solid var(--glass-border); }
-        .proj-img img { transition: 0.7s ease; }
+        .proj-img { height: 220px; overflow: hidden; border-bottom: 1px solid var(--glass-border); position: relative; }
+        .proj-img img { transition: 0.7s ease; width: 100%; height: 100%; object-fit: cover; }
         .proj-card:hover .proj-img img { transform: scale(1.1); }
         .proj-content { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .proj-label { color: var(--neon-purple); font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 0.5rem; }
-        .proj-title { font-size: 1.5rem; margin-bottom: 1rem; }
-        .proj-link { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; color: var(--neon-cyan); font-family: var(--font-mono); text-transform: uppercase; font-size: 0.9rem; }
+        .proj-label { color: var(--neon-purple); font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        .proj-title { font-size: 1.4rem; margin-bottom: 1rem; }
+        .proj-link { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; color: var(--neon-cyan); font-family: var(--font-mono); text-transform: uppercase; font-size: 0.9rem; font-weight: bold; width: fit-content; }
         .proj-link:hover { gap: 15px; text-shadow: 0 0 10px var(--neon-cyan); }
 
-        /* ==================== 9. CERTIFICATIONS (NEW SECTION) ==================== */
+        /* ==================== 9. CERTIFICATIONS ==================== */
         .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
         .cert-card { display: flex; align-items: center; gap: 1.5rem; padding: 2rem; border-left: 4px solid var(--neon-cyan); }
-        .cert-icon { font-size: 3rem; color: var(--neon-cyan); }
-        .cert-info h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .cert-info p { color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-mono); }
+        .cert-icon { font-size: 2.5rem; color: var(--neon-cyan); }
+        .cert-info h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .cert-info p { color: var(--text-muted); font-size: 0.85rem; font-family: var(--font-mono); }
 
         /* ==================== 10. FOOTER ==================== */
-        footer { text-align: center; padding: 6rem 2rem 2rem; border-top: 1px solid var(--glass-border); margin-top: 5rem; position: relative; overflow: hidden; }
+        footer { text-align: center; padding: 6rem 2rem 2rem; border-top: 1px solid var(--glass-border); margin-top: 3rem; position: relative; overflow: hidden; }
         .footer-content { max-width: 600px; margin: 0 auto; }
-        .email-link { font-size: 3rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); transition: 0.3s; display: block; margin: 2rem 0; }
+        .email-link { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.3); transition: 0.3s; display: block; margin: 1.5rem 0; word-break: break-all; }
         .email-link:hover { color: var(--neon-cyan); text-shadow: 0 0 30px var(--neon-cyan); transform: scale(1.05); }
         .socials { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; }
-        .socials a { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border-radius: 50%; font-size: 1.5rem; border: 1px solid var(--glass-border); transition: 0.3s; }
+        .socials a { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: var(--glass-bg); border-radius: 50%; font-size: 1.2rem; border: 1px solid var(--glass-border); transition: 0.3s; }
         .socials a:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); transform: translateY(-5px); }
 
-        /* MOBILE RESPONSIVENESS */
+        /* ==================== 11. MOBILE RESPONSIVENESS ==================== */
         @media (max-width: 900px) {
-            .hero-grid { grid-template-columns: 1fr; text-align: center; margin-top: 5rem; }
+            /* Navigation */
+            .menu-btn { display: block; }
+            .nav-links {
+                position: fixed; top: 0; right: -100%; width: 100%; height: 100vh;
+                background: rgba(3, 0, 20, 0.95); backdrop-filter: blur(20px);
+                flex-direction: column; justify-content: center; align-items: center;
+                border-radius: 0; border: none; border-left: 1px solid var(--glass-border);
+                transition: 0.4s cubic-bezier(0.77, 0.2, 0.05, 1); z-index: 1000;
+                gap: 2rem;
+            }
+            .nav-links.nav-active { right: 0; }
+            .nav-link { font-size: 1.5rem; }
+
+            /* Layout */
+            .section { padding: 6rem 1.5rem 2rem; }
+            .glass-card { padding: 2rem 1.5rem; }
+            
+            /* Hero */
+            .hero-grid { grid-template-columns: 1fr; text-align: center; gap: 3rem; }
             .hero-desc { margin: 0 auto 2rem; }
-            nav { width: 90%; justify-content: center; gap: 1rem; padding: 1rem; }
-            .nav-link { font-size: 0.8rem; }
-            .section { padding: 5rem 1.5rem; }
+            .btn-glow { padding: 12px 25px; font-size: 0.8rem; }
+            .hero-visual { padding: 0 2rem; }
+
+            /* Timeline */
             .timeline { padding-left: 1.5rem; }
-            .exp-dot { left: -2.1rem; width: 16px; height: 16px; }
-            .float-icon { display: none; } /* Hide floating icons on mobile for cleaner look */
+            .exp-dot { left: -2.1rem; width: 16px; height: 16px; top: 2.2rem;}
+            .exp-card { padding: 1.5rem; }
+            .exp-title { font-size: 1.3rem; }
+
+            /* Logo Grid */
+            .logo-grid { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 1rem; }
+            .logo-item { padding: 1.5rem 0.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Animated Background -->
     <div class="ambient-bg">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -250,16 +307,24 @@
     </div>
     <div class="noise-overlay"></div>
 
-    <!-- Navigation -->
-    <nav data-aos="fade-down" data-aos-duration="1000">
-        <a href="#home" class="nav-link active">Home</a>
-        <a href="#expertise" class="nav-link">Expertise</a>
-        <a href="#experience" class="nav-link">Log</a>
-        <a href="#projects" class="nav-link">Work</a>
-        <a href="#certifications" class="nav-link">Certs</a>
-    </nav>
+    <header class="header" id="header" data-aos="fade-down" data-aos-duration="1000">
+        <nav class="nav-container">
+            <a href="#home" class="nav-logo">RD.</a>
+            
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#expertise" class="nav-link">Expertise</a></li>
+                <li><a href="#experience" class="nav-link">Log</a></li>
+                <li><a href="#projects" class="nav-link">Work</a></li>
+                <li><a href="#certifications" class="nav-link">Certs</a></li>
+            </ul>
 
-    <!-- HERO SECTION -->
+            <div class="menu-btn" id="menu-btn">
+                <i class="ri-menu-4-line"></i>
+            </div>
+        </nav>
+    </header>
+
     <section class="section hero" id="home">
         <div class="hero-grid">
             <div data-aos="fade-right" data-aos-duration="1200">
@@ -273,23 +338,20 @@
                 <p class="hero-desc">
                     A hybrid Storage Engineer & Frontend Developer bridging the gap between ultra-high-end Tier-1 enterprise arrays and highly responsive modern web applications.
                 </p>
-                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 2rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
                     <a href="#projects" class="btn-glow">INITIATE DEPLOYMENTS <i class="ri-rocket-line"></i></a>
                     <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" class="btn-glow" style="border-color: var(--glass-border);">LINKEDIN</a>
                 </div>
             </div>
             
             <div class="hero-visual" data-aos="fade-left" data-aos-duration="1200" data-aos-delay="200">
-                <div class="float-icon icon-1"><img src="https://cdn.simpleicons.org/hitachi/00f0ff" width="30"></div>
-                <div class="float-icon icon-2"><img src="https://cdn.simpleicons.org/react/00f0ff" width="30"></div>
                 <div class="hero-img-wrap">
-                    <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi Profile" style="width: 100%; height: auto;">
+                    <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi Profile">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- EXPERTISE / SKILLS SECTION -->
     <section class="section" id="expertise">
         <div class="section-header" data-aos="fade-up">
             <span class="section-tag">// Technical Arsenal</span>
@@ -299,12 +361,10 @@
         <div class="glass-card" data-aos="zoom-in" data-aos-duration="1000">
             <h3 style="margin-bottom: 2rem; text-align: center; color: var(--neon-cyan);"><i class="ri-server-line"></i> Enterprise Hardware & Tools</h3>
             <div class="logo-grid">
-                <!-- Storage Logos -->
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/hitachi/ffffff" alt="Hitachi"><span class="logo-name">Hitachi VSP</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/huawei/ffffff" alt="Huawei"><span class="logo-name">Huawei</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/netapp/ffffff" alt="NetApp"><span class="logo-name">NetApp</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/dell/ffffff" alt="Dell"><span class="logo-name">Dell PowerMax</span></div>
-                <!-- Tools -->
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/linux/ffffff" alt="Linux"><span class="logo-name">Linux CLI</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/git/ffffff" alt="Git"><span class="logo-name">Git</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/figma/ffffff" alt="Figma"><span class="logo-name">Figma</span></div>
@@ -312,7 +372,6 @@
 
             <h3 style="margin: 4rem 0 2rem; text-align: center; color: var(--neon-purple);"><i class="ri-code-box-line"></i> Development Stack</h3>
             <div class="logo-grid">
-                <!-- Dev Logos -->
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/react/ffffff" alt="React"><span class="logo-name">React.js</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/javascript/ffffff" alt="JavaScript"><span class="logo-name">JavaScript</span></div>
                 <div class="logo-item"><img src="https://cdn.simpleicons.org/tailwindcss/ffffff" alt="Tailwind"><span class="logo-name">TailwindCSS</span></div>
@@ -322,7 +381,6 @@
         </div>
     </section>
 
-    <!-- EXPERIENCE SECTION -->
     <section class="section" id="experience">
         <div class="section-header" data-aos="fade-up">
             <span class="section-tag">// Professional Log</span>
@@ -333,7 +391,7 @@
             <div class="glass-card exp-card" data-aos="fade-up" data-aos-delay="100">
                 <div class="exp-dot"></div>
                 <span class="exp-date">OCT 2025 — PRESENT</span>
-                <h3 class="exp-title">Storage Engineer</h3>
+                <h3 class="exp-title">L1 Storage Engineer</h3>
                 <div class="exp-company">BSE (Bombay Stock Exchange)</div>
                 <ul class="exp-list">
                     <li>Execute proactive health monitoring and diagnostics for mission-critical financial data storage environments.</li>
@@ -366,7 +424,6 @@
         </div>
     </section>
 
-    <!-- PROJECTS SECTION -->
     <section class="section" id="projects">
         <div class="section-header" data-aos="fade-up">
             <span class="section-tag">// Deployed Code</span>
@@ -406,7 +463,6 @@
         </div>
     </section>
 
-    <!-- NEW CERTIFICATIONS SECTION -->
     <section class="section" id="certifications">
         <div class="section-header" data-aos="fade-up">
             <span class="section-tag">// Verified Credentials</span>
@@ -414,7 +470,7 @@
         </div>
         
         <div class="cert-grid">
-            <div class="glass-card cert-card" data-aos="flip-left" data-aos-delay="100">
+            <div class="glass-card cert-card" data-aos="flip-up" data-aos-delay="100">
                 <i class="ri-shield-check-fill cert-icon"></i>
                 <div class="cert-info">
                     <h3>Introduction to Hitachi Ops Center</h3>
@@ -422,7 +478,7 @@
                 </div>
             </div>
 
-            <div class="glass-card cert-card" data-aos="flip-left" data-aos-delay="300">
+            <div class="glass-card cert-card" data-aos="flip-up" data-aos-delay="200">
                 <i class="ri-brain-line cert-icon"></i>
                 <div class="cert-info">
                     <h3>2 Days AI Certificate</h3>
@@ -432,7 +488,6 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
     <footer data-aos="fade-in">
         <div class="footer-content">
             <span class="section-tag">// Initialization</span>
@@ -440,9 +495,9 @@
             <a href="mailto:riteshrdalavi3053@gmail.com" class="email-link">SAY HELLO</a>
             
             <div class="socials">
-                <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank"><i class="ri-linkedin-fill"></i></a>
-                <a href="https://github.com/ritzdalavi" target="_blank"><i class="ri-github-fill"></i></a>
-                <a href="mailto:riteshrdalavi3053@gmail.com"><i class="ri-mail-send-fill"></i></a>
+                <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" aria-label="LinkedIn"><i class="ri-linkedin-fill"></i></a>
+                <a href="https://github.com/ritzdalavi" target="_blank" aria-label="GitHub"><i class="ri-github-fill"></i></a>
+                <a href="mailto:riteshrdalavi3053@gmail.com" aria-label="Email"><i class="ri-mail-send-fill"></i></a>
             </div>
             
             <p style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.8rem; margin-top: 3rem;">
@@ -451,13 +506,13 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         // 1. Initialize AOS Animations
         AOS.init({
             once: true,
             offset: 100,
+            duration: 800,
             easing: 'ease-out-cubic',
         });
 
@@ -478,11 +533,20 @@
         }
         document.addEventListener("DOMContentLoaded", type);
 
-        // 3. Active Nav State highlighting on scroll
+        // 3. Navbar Scroll Effect & Active Link Highlight
+        const header = document.getElementById('header');
         const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.nav-link');
 
         window.addEventListener('scroll', () => {
+            // Header Glass Effect
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+
+            // Active Menu Link Indicator
             let current = '';
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
@@ -496,6 +560,33 @@
                 if (link.getAttribute('href').includes(current)) {
                     link.classList.add('active');
                 }
+            });
+        });
+
+        // 4. Mobile Menu Toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const navLinksContainer = document.getElementById('nav-links');
+        const menuIcon = menuBtn.querySelector('i');
+
+        menuBtn.addEventListener('click', () => {
+            navLinksContainer.classList.toggle('nav-active');
+            
+            // Toggle Icon
+            if (navLinksContainer.classList.contains('nav-active')) {
+                menuIcon.classList.remove('ri-menu-4-line');
+                menuIcon.classList.add('ri-close-line');
+            } else {
+                menuIcon.classList.remove('ri-close-line');
+                menuIcon.classList.add('ri-menu-4-line');
+            }
+        });
+
+        // Close mobile menu on link click
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinksContainer.classList.remove('nav-active');
+                menuIcon.classList.remove('ri-close-line');
+                menuIcon.classList.add('ri-menu-4-line');
             });
         });
     </script>
