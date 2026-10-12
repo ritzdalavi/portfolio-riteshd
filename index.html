@@ -13,21 +13,25 @@
     
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Three.js for 3D Centerpiece -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-        /* ==================== 1. MODERN ENTERPRISE THEME ==================== */
+        /* ==================== 1. CINEMATIC ENTERPRISE THEME ==================== */
         :root {
-            --bg-dark: #0f172a;        /* Slate 900 */
-            --bg-card: #1e293b;        /* Slate 800 */
-            --bg-card-hover: #273449;  
-            --border-color: #334155;   /* Slate 700 */
+            --bg-dark: #030712;        /* Deep Space Black */
+            --bg-card: rgba(15, 23, 42, 0.4);  /* Glassmorphism base */
+            --bg-card-hover: rgba(30, 41, 59, 0.6);  
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(6, 182, 212, 0.4);
             
-            --accent-primary: #3b82f6; /* Blue 500 */
-            --accent-light: #60a5fa;   /* Blue 400 */
-            --accent-cyan: #06b6d4;    /* Cyan 500 */
+            --accent-primary: #0057ff; /* Hyper Blue */
+            --accent-light: #60a5fa;   
+            --accent-cyan: #00f0ff;    /* Neon Cyan */
             
-            --text-main: #f8fafc;      /* Slate 50 */
-            --text-muted: #94a3b8;     /* Slate 400 */
+            --text-main: #ffffff;      
+            --text-muted: #94a3b8;     
             
             --font-sans: 'Outfit', sans-serif;
             --font-mono: 'Space Mono', monospace;
@@ -44,45 +48,47 @@
             font-family: var(--font-sans);
             overflow-x: hidden;
             line-height: 1.7;
+            background-image: radial-gradient(circle at 50% 0%, #0f172a 0%, #030712 70%);
         }
 
         a { text-decoration: none; color: inherit; }
         img { width: 100%; display: block; object-fit: cover; }
         ul { list-style: none; }
 
-        /* ==================== 2. PROFESSIONAL BACKGROUND ==================== */
-        .ambient-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -1; overflow: hidden; pointer-events: none;
-            background-color: var(--bg-dark);
-            background-image: 
-                linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
+        /* ==================== 2. SPATIAL BACKGROUND ==================== */
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: auto;
+            overflow: hidden;
         }
 
+        /* Ambient glow overlays */
         .glow-blob {
-            position: absolute; border-radius: 50%; filter: blur(100px);
-            opacity: 0.4; pointer-events: none; z-index: -1;
+            position: absolute; border-radius: 50%; filter: blur(120px);
+            opacity: 0.25; pointer-events: none; z-index: -1;
         }
-
-        .blob-1 { width: 600px; height: 600px; background: rgba(59, 130, 246, 0.15); top: -100px; left: -100px; }
-        .blob-2 { width: 500px; height: 500px; background: rgba(6, 182, 212, 0.1); bottom: 10%; right: -50px; }
+        .blob-1 { width: 600px; height: 600px; background: var(--accent-primary); top: -200px; left: -100px; }
+        .blob-2 { width: 500px; height: 500px; background: var(--accent-cyan); bottom: 10%; right: -100px; }
 
         /* ==================== 3. REFINED NAVIGATION ==================== */
         .header {
             position: fixed; top: 0; left: 0; width: 100%;
             z-index: 1000; transition: all 0.3s ease;
             padding: 1.2rem 0;
+            border-bottom: 1px solid transparent;
         }
         
         .header.scrolled {
             padding: 0.8rem 0;
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(3, 7, 18, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
         .nav-container {
@@ -94,174 +100,192 @@
             font-family: var(--font-sans); font-size: 1.5rem; font-weight: 700;
             color: var(--text-main); letter-spacing: -0.5px;
             display: flex; align-items: center; gap: 8px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.2);
         }
-        .nav-logo span { color: var(--accent-primary); }
+        .nav-logo span { color: var(--accent-cyan); text-shadow: 0 0 15px var(--accent-cyan); }
 
-        .nav-links {
-            display: flex; gap: 2rem;
-        }
-
+        .nav-links { display: flex; gap: 2rem; }
         .nav-link {
             font-size: 0.95rem; font-weight: 500; color: var(--text-muted);
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
         }
-
-        .nav-link:hover, .nav-link.active { color: var(--text-main); }
+        .nav-link:hover, .nav-link.active { 
+            color: var(--text-main); 
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
         
         .menu-btn {
             display: none; font-size: 1.8rem; color: var(--text-main);
             cursor: pointer; z-index: 1001; transition: 0.3s;
         }
 
-        /* ==================== 4. LAYOUT & CARDS ==================== */
-        .section { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 4rem; }
+        /* ==================== 4. LAYOUT & GLASS CARDS ==================== */
+        .section { max-width: 1200px; margin: 0 auto; padding: 8rem 2rem 4rem; position: relative; z-index: 10;}
         
         .section-header { text-align: left; margin-bottom: 4rem; }
         .section-tag {
-            font-family: var(--font-mono); color: var(--accent-primary);
-            font-size: 0.85rem; letter-spacing: 1px;
-            display: inline-block; margin-bottom: 0.8rem;
-            background: rgba(59, 130, 246, 0.1); padding: 4px 12px; border-radius: 4px;
+            font-family: var(--font-mono); color: var(--accent-cyan);
+            font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 8px; margin-bottom: 0.8rem;
         }
+        .section-tag::before { content: ''; width: 30px; height: 1px; background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
         .section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.5px; }
 
         .glass-card {
             background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border-color); 
             border-radius: 16px;
-            padding: 3rem; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            padding: 3rem; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .glass-card:hover { 
-            transform: translateY(-4px); 
-            border-color: #475569; 
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); 
+            transform: translateY(-5px); 
+            border-color: var(--border-hover); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.1) inset; 
             background: var(--bg-card-hover);
         }
 
         /* ==================== 5. HERO ==================== */
-        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; padding-top: 8rem; }
-        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 4rem; align-items: center; }
+        .hero { 
+            min-height: 100vh; display: flex; align-items: center; 
+            position: relative; padding-top: 8rem; width: 100%;
+        }
+        
+        .hero-grid { 
+            display: grid; grid-template-columns: 1.2fr 0.8fr; 
+            gap: 4rem; align-items: center; width: 100%;
+            pointer-events: none; /* Let mouse interact with 3D canvas */
+        }
+        
+        .hero-content { pointer-events: auto; }
         
         .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
-            background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2);
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px;
+            background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.3);
             border-radius: 100px; font-family: var(--font-mono); color: var(--accent-cyan);
-            font-size: 0.8rem; margin-bottom: 1.5rem;
+            font-size: 0.8rem; margin-bottom: 2rem; backdrop-filter: blur(4px);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
         }
-        .hero-badge i { animation: blink 2s infinite; }
+        .hero-badge i { animation: pulse 2s infinite; color: var(--accent-cyan); text-shadow: 0 0 10px var(--accent-cyan); }
 
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
 
         .hero-title { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -1px; }
         .gradient-text {
-            background: linear-gradient(135deg, var(--accent-light), var(--accent-cyan));
+            background: linear-gradient(135deg, #ffffff, var(--accent-cyan));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
         }
 
         .hero-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 3rem; max-width: 520px; line-height: 1.8; }
 
         .btn-group { display: flex; gap: 1rem; flex-wrap: wrap; }
         .btn-primary {
-            display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px;
+            display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px;
             background: var(--accent-primary); color: #fff; border-radius: 8px;
-            font-weight: 500; transition: 0.3s; font-size: 0.95rem; border: 1px solid var(--accent-primary);
+            font-weight: 600; transition: 0.3s; font-size: 0.95rem; 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 20px rgba(0, 87, 255, 0.4);
         }
-        .btn-primary:hover { background: #2563eb; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: #0046d1; box-shadow: 0 0 30px rgba(0, 87, 255, 0.6); transform: translateY(-2px); }
         
         .btn-secondary {
-            display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px;
-            background: transparent; color: var(--text-main); border: 1px solid var(--border-color);
+            display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px;
+            background: rgba(255,255,255,0.03); color: var(--text-main); border: 1px solid var(--border-color);
             border-radius: 8px; font-weight: 500; transition: 0.3s; font-size: 0.95rem;
+            backdrop-filter: blur(4px);
         }
-        .btn-secondary:hover { border-color: var(--text-main); background: rgba(255,255,255,0.05); }
+        .btn-secondary:hover { border-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); transform: translateY(-2px); }
 
-        .hero-visual { position: relative; }
-        .hero-img-wrap { 
-            border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3); aspect-ratio: 4/5;
-        }
-        .hero-img-wrap img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(20%) contrast(1.1); transition: 0.5s ease; }
-        .hero-img-wrap:hover img { transform: scale(1.02); filter: grayscale(0%) contrast(1.1); }
+        /* Empty div to preserve grid structure over the 3D canvas */
+        .hero-visual-placeholder { width: 100%; height: 100%; }
 
         /* ==================== 6. SKILLS & LOGOS ==================== */
         .skills-container { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
         @media (max-width: 768px) { .skills-container { grid-template-columns: 1fr; } }
         
         .skill-group h3 { margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
-        .skill-group h3 i { color: var(--accent-primary); }
+        .skill-group h3 i { color: var(--accent-cyan); }
         
         .logo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; }
         .logo-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-            padding: 1.5rem 1rem; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color);
+            padding: 1.5rem 1rem; background: rgba(3, 7, 18, 0.5); border: 1px solid var(--border-color);
             border-radius: 12px; transition: 0.3s;
         }
-        .logo-item:hover { border-color: var(--accent-primary); transform: translateY(-3px); background: var(--bg-card); }
-        .logo-item img { width: 36px; height: 36px; filter: grayscale(100%) opacity(0.7); transition: 0.3s; }
-        .logo-item:hover img { filter: grayscale(0%) opacity(1); }
+        .logo-item:hover { border-color: var(--accent-cyan); transform: translateY(-3px); background: rgba(6, 182, 212, 0.05); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .logo-item img { width: 36px; height: 36px; filter: brightness(0.7) contrast(1.2); transition: 0.3s; }
+        .logo-item:hover img { filter: brightness(1) drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
         .logo-name { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-align: center; }
 
         /* ==================== 7. EXPERIENCE TIMELINE ==================== */
         .timeline { position: relative; padding-left: 2.5rem; border-left: 1px solid var(--border-color); margin: 0 left; max-width: 900px; }
-        .exp-card { margin-bottom: 2.5rem; position: relative; padding: 2rem; background: transparent; border: 1px solid var(--border-color); }
-        .exp-card:hover { background: var(--bg-card); }
+        .exp-card { margin-bottom: 2.5rem; position: relative; padding: 2.5rem; border: 1px solid var(--border-color); }
+        
         .exp-dot {
-            position: absolute; top: 2.5rem; left: -2.85rem; width: 12px; height: 12px;
-            background: var(--bg-dark); border: 2px solid var(--accent-primary); border-radius: 50%;
-            transition: 0.3s;
+            position: absolute; top: 3rem; left: -3.1rem; width: 16px; height: 16px;
+            background: var(--bg-dark); border: 2px solid var(--accent-cyan); border-radius: 50%;
+            transition: 0.3s; box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
         }
-        .exp-card:hover .exp-dot { background: var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary); }
+        .exp-card:hover .exp-dot { background: var(--accent-cyan); box-shadow: 0 0 15px var(--accent-cyan); transform: scale(1.2); }
         
-        .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;}
-        .exp-title-wrap h3 { font-size: 1.3rem; color: var(--text-main); font-weight: 600; }
-        .exp-company { color: var(--accent-primary); font-size: 1rem; font-weight: 500; margin-top: 4px; }
-        .exp-date { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 4px;}
+        .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;}
+        .exp-title-wrap h3 { font-size: 1.4rem; color: var(--text-main); font-weight: 600; }
+        .exp-company { color: var(--accent-light); font-size: 1rem; font-weight: 500; margin-top: 4px; }
+        .exp-date { color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.85rem; background: rgba(6, 182, 212, 0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(6, 182, 212, 0.2);}
         
-        .exp-list { list-style: none; color: var(--text-muted); font-size: 0.95rem; }
-        .exp-list li { margin-bottom: 0.6rem; padding-left: 1.5rem; position: relative; }
-        .exp-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent-primary); font-family: var(--font-mono); }
+        .exp-list { list-style: none; color: var(--text-muted); font-size: 1rem; }
+        .exp-list li { margin-bottom: 0.8rem; padding-left: 1.8rem; position: relative; }
+        .exp-list li::before { content: '▹'; position: absolute; left: 0; color: var(--accent-cyan); font-family: var(--font-mono); font-size: 1.2rem;}
 
         /* ==================== 8. PROJECTS ==================== */
         .project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
-        .proj-card { padding: 0; display: flex; flex-direction: column; overflow: hidden; }
-        .proj-img { height: 200px; overflow: hidden; border-bottom: 1px solid var(--border-color); background: #000; }
-        .proj-img img { transition: 0.7s ease; width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-        .proj-card:hover .proj-img img { transform: scale(1.05); opacity: 1; }
-        .proj-content { padding: 2rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .proj-label { color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
-        .proj-title { font-size: 1.4rem; margin-bottom: 1rem; font-weight: 600; }
+        .proj-card { padding: 0; display: flex; flex-direction: column; overflow: hidden; background: rgba(15, 23, 42, 0.3); }
+        .proj-img { height: 220px; overflow: hidden; border-bottom: 1px solid var(--border-color); background: #000; position: relative; }
+        .proj-img::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(3,7,18,1), transparent); opacity: 0.8; transition: 0.3s; }
+        .proj-card:hover .proj-img::after { opacity: 0.3; }
+        .proj-img img { transition: 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 100%; height: 100%; object-fit: cover; opacity: 0.6; filter: grayscale(30%); }
+        .proj-card:hover .proj-img img { transform: scale(1.08); opacity: 1; filter: grayscale(0%); }
+        .proj-content { padding: 2.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .proj-label { color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
+        .proj-title { font-size: 1.5rem; margin-bottom: 1rem; font-weight: 600; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
         .proj-link { 
             margin-top: auto; display: inline-flex; align-items: center; gap: 8px; 
-            color: var(--text-main); font-size: 0.9rem; font-weight: 500; width: fit-content; transition: 0.3s;
+            color: var(--text-main); font-size: 0.95rem; font-weight: 500; width: fit-content; transition: 0.3s;
         }
-        .proj-link i { color: var(--accent-primary); transition: 0.3s; }
-        .proj-link:hover { color: var(--accent-primary); }
-        .proj-link:hover i { transform: translate(3px, -3px); }
+        .proj-link i { color: var(--accent-cyan); transition: 0.3s; }
+        .proj-link:hover { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+        .proj-link:hover i { transform: translate(4px, -4px); }
 
         /* ==================== 9. CERTIFICATIONS ==================== */
         .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-        .cert-card { display: flex; align-items: flex-start; gap: 1.2rem; padding: 1.8rem; border-left: 3px solid var(--accent-primary); background: var(--bg-card); border-radius: 0 12px 12px 0; border-top: 1px solid var(--border-color); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); transition: 0.3s;}
-        .cert-card:hover { transform: translateX(5px); background: var(--bg-card-hover); }
-        .cert-icon { font-size: 2rem; color: var(--accent-primary); margin-top: -2px;}
-        .cert-info h3 { font-size: 1.05rem; margin-bottom: 0.4rem; font-weight: 600; }
-        .cert-info p { color: var(--text-muted); font-size: 0.85rem; }
+        .cert-card { display: flex; align-items: flex-start; gap: 1.5rem; padding: 2rem; border-left: 3px solid var(--accent-cyan); background: rgba(15, 23, 42, 0.3); border-radius: 0 12px 12px 0; transition: 0.3s;}
+        .cert-card:hover { transform: translateX(8px); background: rgba(30, 41, 59, 0.5); border-left-color: var(--accent-primary); }
+        .cert-icon { font-size: 2.5rem; color: var(--accent-cyan); margin-top: -5px; text-shadow: 0 0 15px rgba(6, 182, 212, 0.4); transition: 0.3s;}
+        .cert-card:hover .cert-icon { color: var(--accent-primary); }
+        .cert-info h3 { font-size: 1.1rem; margin-bottom: 0.4rem; font-weight: 600; }
+        .cert-info p { color: var(--text-muted); font-size: 0.9rem; }
 
         /* ==================== 10. FOOTER ==================== */
-        footer { padding: 5rem 2rem 2rem; border-top: 1px solid var(--border-color); margin-top: 4rem; position: relative; }
+        footer { padding: 5rem 2rem 2rem; border-top: 1px solid var(--border-color); margin-top: 4rem; position: relative; z-index: 10; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
         .footer-content { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .footer-title { font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; }
         .email-link { 
-            font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 500; color: var(--accent-light); 
-            transition: 0.3s; display: inline-block; margin-bottom: 2.5rem; border-bottom: 1px solid transparent; padding-bottom: 4px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem); font-weight: 500; color: var(--accent-cyan); 
+            transition: 0.3s; display: inline-block; margin-bottom: 2.5rem; border-bottom: 1px solid transparent; padding-bottom: 4px; text-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
         }
-        .email-link:hover { color: var(--accent-primary); border-color: var(--accent-primary); }
-        .socials { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; }
+        .email-link:hover { color: #fff; border-color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .socials { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 3rem; }
         .socials a { 
-            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; 
-            background: var(--bg-card); border-radius: 8px; font-size: 1.2rem; border: 1px solid var(--border-color); transition: 0.3s; color: var(--text-muted);
+            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; 
+            background: rgba(255,255,255,0.03); border-radius: 12px; font-size: 1.5rem; border: 1px solid var(--border-color); transition: 0.3s; color: var(--text-muted);
+            backdrop-filter: blur(4px);
         }
-        .socials a:hover { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); transform: translateY(-3px); }
+        .socials a:hover { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 87, 255, 0.4); }
         .footer-bottom { border-top: 1px solid var(--border-color); width: 100%; padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;}
         .footer-bottom p { color: var(--text-muted); font-size: 0.85rem; }
 
@@ -270,27 +294,27 @@
             .menu-btn { display: block; }
             .nav-links {
                 position: fixed; top: 0; right: -100%; width: 100%; height: 100vh;
-                background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px);
+                background: rgba(3, 7, 18, 0.98); backdrop-filter: blur(20px);
                 flex-direction: column; justify-content: center; align-items: center;
                 border-left: 1px solid var(--border-color);
                 transition: 0.4s cubic-bezier(0.77, 0.2, 0.05, 1); z-index: 1000;
-                gap: 2rem;
+                gap: 2.5rem;
             }
             .nav-links.nav-active { right: 0; }
-            .nav-link { font-size: 1.2rem; }
+            .nav-link { font-size: 1.4rem; }
 
             .section { padding: 6rem 1.5rem 2rem; }
-            .glass-card, .exp-card { padding: 1.5rem; }
+            .glass-card, .exp-card { padding: 1.8rem; }
             
-            .hero { padding-top: 6rem; text-align: center; }
-            .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-            .hero-desc { margin: 0 auto 2rem; }
+            .hero { padding-top: 8rem; text-align: center; }
+            .hero-grid { grid-template-columns: 1fr; gap: 0; }
+            .hero-visual-placeholder { display: none; } /* Hide empty column on mobile */
+            .hero-desc { margin: 0 auto 2.5rem; }
             .btn-group { justify-content: center; }
-            .hero-visual { padding: 0 1rem; max-width: 400px; margin: 0 auto; }
             .section-header { text-align: center; }
             
             .timeline { padding-left: 1.2rem; margin-left: 10px; }
-            .exp-dot { left: -1.5rem; width: 10px; height: 10px; top: 2.2rem; }
+            .exp-dot { left: -1.8rem; width: 12px; height: 12px; top: 2.8rem; }
             
             .footer-bottom { justify-content: center; text-align: center; }
         }
@@ -298,10 +322,14 @@
 </head>
 <body>
 
+    <!-- Ambient Gradient Blobs -->
     <div class="ambient-bg">
         <div class="glow-blob blob-1"></div>
         <div class="glow-blob blob-2"></div>
     </div>
+
+    <!-- 3D Spatial Canvas Background -->
+    <div id="webgl-container"></div>
 
     <header class="header" id="header" data-aos="fade-down" data-aos-duration="800">
         <nav class="nav-container">
@@ -323,7 +351,7 @@
 
     <section class="section hero" id="home">
         <div class="hero-grid">
-            <div data-aos="fade-right" data-aos-duration="1000">
+            <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
                 <div class="hero-badge">
                     <i class="ri-checkbox-blank-circle-fill"></i> Available for Opportunities
                 </div>
@@ -332,7 +360,7 @@
                     <span class="gradient-text" id="typewriter">UI Engineer.</span>
                 </h1>
                 <p class="hero-desc">
-                    Enterprise Storage Support Engineer specializing in high-availability environments, bridging the gap between mission-critical backend systems and responsive Front-end web development.
+                    Enterprise Storage Support Engineer specializing in high-availability environments, bridging the gap between mission-critical backend systems and responsive Front-end web development[cite: 2].
                 </p>
                 <div class="btn-group">
                     <a href="#projects" class="btn-primary">View Projects <i class="ri-arrow-right-line"></i></a>
@@ -340,12 +368,8 @@
                 </div>
             </div>
             
-            <div class="hero-visual" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-                <div class="hero-img-wrap">
-                    <!-- Standardized placeholder logic; assuming your local image works -->
-                    <img src="assets/img/ritesh.jpg" alt="Ritesh Dalvi Profile" onerror="this.src='https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
-                </div>
-            </div>
+            <!-- Empty placeholder to maintain grid alignment, letting 3D shine through -->
+            <div class="hero-visual-placeholder"></div>
         </div>
     </section>
 
@@ -393,15 +417,15 @@
                 <div class="exp-dot"></div>
                 <div class="exp-header">
                     <div class="exp-title-wrap">
-                        <h3>L1 Storage Engineer</h3>
-                        <div class="exp-company">BSE (Bombay Stock Exchange)</div>
+                        <h3>L1 Storage Engineer[cite: 2]</h3>
+                        <div class="exp-company">BSE (Bombay Stock Exchange)[cite: 2]</div>
                     </div>
-                    <span class="exp-date">Oct 2025 — Present</span>
+                    <span class="exp-date">Oct 2025 — Present[cite: 2]</span>
                 </div>
                 <ul class="exp-list">
-                    <li>Execute proactive health monitoring and diagnostics for mission-critical financial data storage environments.</li>
-                    <li>Perform logical LUN provisioning and precise capacity expansions on <strong>Huawei OceanStor Dorado 18000</strong>, <strong>Dell PowerMax</strong>, and <strong>Hitachi VSP</strong>.</li>
-                    <li>Ensure zero-downtime operations and immediate response to array alerts to secure and optimize real-time trading data architectures.</li>
+                    <li>Execute proactive health monitoring and diagnostics for mission-critical financial data storage environments[cite: 2].</li>
+                    <li>Perform logical LUN provisioning and precise capacity expansions on <strong>Huawei OceanStor Dorado 18000</strong>, <strong>Dell PowerMax</strong>, and <strong>Hitachi VSP</strong>[cite: 2].</li>
+                    <li>Ensure zero-downtime operations and immediate response to array alerts to secure and optimize real-time trading data architectures[cite: 2].</li>
                 </ul>
             </div>
 
@@ -409,14 +433,14 @@
                 <div class="exp-dot"></div>
                 <div class="exp-header">
                     <div class="exp-title-wrap">
-                        <h3>Software Developer</h3>
-                        <div class="exp-company">PICSISE Technologies Pvt</div>
+                        <h3>Software Developer[cite: 2]</h3>
+                        <div class="exp-company">PICSISE Technologies Pvt[cite: 2]</div>
                     </div>
-                    <span class="exp-date">Jun 2025 — Sep 2025</span>
+                    <span class="exp-date">Jun 2025 — Sep 2025[cite: 2]</span>
                 </div>
                 <ul class="exp-list">
-                    <li>Developed responsive web applications, focusing on clean architecture and modular component design.</li>
-                    <li>Optimized database queries and API calls, significantly reducing latency and improving page load speeds by 40%.</li>
+                    <li>Developed responsive web applications, focusing on clean architecture and modular component design[cite: 2].</li>
+                    <li>Optimized database queries and API calls, significantly reducing latency and improving page load speeds by 40%[cite: 2].</li>
                 </ul>
             </div>
 
@@ -424,14 +448,14 @@
                 <div class="exp-dot"></div>
                 <div class="exp-header">
                     <div class="exp-title-wrap">
-                        <h3>Frontend Developer Intern</h3>
-                        <div class="exp-company">Sync Solutions</div>
+                        <h3>Frontend Developer Intern[cite: 2]</h3>
+                        <div class="exp-company">Sync Solutions[cite: 2]</div>
                     </div>
-                    <span class="exp-date">Dec 2024 — May 2025</span>
+                    <span class="exp-date">Dec 2024 — May 2025[cite: 2]</span>
                 </div>
                 <ul class="exp-list">
-                    <li>Engineered pixel-perfect user interfaces from complex Figma designs using raw HTML, CSS, and JS.</li>
-                    <li>Collaborated directly with senior engineers on debugging, UI testing, and cross-browser validation.</li>
+                    <li>Engineered pixel-perfect user interfaces from complex Figma designs using raw HTML, CSS, and JS[cite: 2].</li>
+                    <li>Collaborated directly with senior engineers on debugging, UI testing, and cross-browser validation[cite: 2].</li>
                 </ul>
             </div>
         </div>
@@ -444,13 +468,12 @@
         </div>
 
         <div class="project-grid">
-            <!-- New TrueVndr Project Added Here -->
             <div class="glass-card proj-card" data-aos="fade-up" data-aos-delay="100">
                 <div class="proj-img"><img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="TrueVndr"></div>
                 <div class="proj-content">
                     <span class="proj-label">Enterprise B2B Platform</span>
-                    <h3 class="proj-title">TrueVndr</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A comprehensive vendor management and business solutions platform focused on scalable architecture and seamless digital experiences.</p>
+                    <h3 class="proj-title">TrueVndr[cite: 2]</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A comprehensive vendor management and business solutions platform focused on scalable architecture and seamless digital experiences[cite: 2].</p>
                     <a href="https://truevndr.com/" class="proj-link" target="_blank">Access Live Site <i class="ri-arrow-right-up-line"></i></a>
                 </div>
             </div>
@@ -459,8 +482,8 @@
                 <div class="proj-img"><img src="https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="GlamZone E-Commerce"></div>
                 <div class="proj-content">
                     <span class="proj-label">E-Commerce Platform</span>
-                    <h3 class="proj-title">Axioncore Technologies</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A robust beauty platform engineered with dynamic product filtering, cart state management, and mobile-first UI architecture.</p>
+                    <h3 class="proj-title">Axioncore Technologies[cite: 2]</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A robust beauty platform engineered with dynamic product filtering, cart state management, and mobile-first UI architecture[cite: 2].</p>
                     <a href="https://axioncoretech.in/" class="proj-link" target="_blank">Access Live Site <i class="ri-arrow-right-up-line"></i></a>
                 </div>
             </div>
@@ -469,8 +492,8 @@
                 <div class="proj-img"><img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="QuickCabs Dashboard"></div>
                 <div class="proj-content">
                     <span class="proj-label">SaaS Dashboard</span>
-                    <h3 class="proj-title">QuickCabs Admin</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A fleet management dashboard enabling admins to track logistics, monitor driver schedules, and visualize earnings data.</p>
+                    <h3 class="proj-title">QuickCabs Admin[cite: 2]</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">A fleet management dashboard enabling admins to track logistics, monitor driver schedules, and visualize earnings data[cite: 2].</p>
                     <a href="https://www.quickcabpune.com/index.html" class="proj-link" target="_blank">Access Live Site <i class="ri-arrow-right-up-line"></i></a>
                 </div>
             </div>
@@ -484,19 +507,19 @@
         </div>
         
         <div class="cert-grid">
-            <div class="cert-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="cert-card glass-card" style="padding: 2rem;" data-aos="fade-up" data-aos-delay="100">
                 <i class="ri-shield-check-fill cert-icon"></i>
                 <div class="cert-info">
-                    <h3>Introduction to Hitachi Ops Center</h3>
-                    <p>Hitachi Vantara / Enterprise Storage</p>
+                    <h3>Introduction to Hitachi Ops Center[cite: 2]</h3>
+                    <p>Hitachi Vantara / Enterprise Storage[cite: 2]</p>
                 </div>
             </div>
 
-            <div class="cert-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="cert-card glass-card" style="padding: 2rem;" data-aos="fade-up" data-aos-delay="200">
                 <i class="ri-brain-line cert-icon"></i>
                 <div class="cert-info">
-                    <h3>Generative AI Mastermind</h3>
-                    <p>Outskill - 2 Days AI Certificate</p>
+                    <h3>Generative AI Mastermind[cite: 2]</h3>
+                    <p>Outskill - 2 Days AI Certificate[cite: 2]</p>
                 </div>
             </div>
         </div>
@@ -505,7 +528,7 @@
     <footer data-aos="fade-in">
         <div class="footer-content">
             <h2 class="footer-title">Ready to build the future?</h2>
-            <a href="mailto:riteshrdalavi3053@gmail.com" class="email-link">riteshrdalavi3053@gmail.com</a>
+            <a href="mailto:riteshrdalavi3053@gmail.com" class="email-link">riteshrdalavi3053@gmail.com[cite: 2]</a>
             
             <div class="socials">
                 <a href="https://linkedin.com/in/ritesh-dalvi-154112210" target="_blank" aria-label="LinkedIn"><i class="ri-linkedin-fill"></i></a>
@@ -514,15 +537,182 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2026 Ritesh Dalvi. All rights reserved.</p>
-                <p>Engineered for High Availability & Scale.</p>
+                <p>&copy; 2026 Ritesh Dalvi. All rights reserved.[cite: 2]</p>
+                <p>Engineered for High Availability & Scale.[cite: 2]</p>
             </div>
         </div>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Three.js Interactive Centerpiece Logic -->
     <script>
-        // 1. Initialize AOS Animations
+        // Set up Three.js Scene
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        
+        // Add subtle fog to blend objects into the deep space background
+        scene.fog = new THREE.FogExp2(0x030712, 0.04);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // optimize performance
+        container.appendChild(renderer.domElement);
+
+        // Core Group to hold geometric centerpiece
+        const coreGroup = new THREE.Group();
+        scene.add(coreGroup);
+
+        // 1. Inner Glowing Solid Core
+        const innerCoreGeo = new THREE.IcosahedronGeometry(1.2, 4);
+        const innerCoreMat = new THREE.MeshStandardMaterial({
+            color: 0x001133,
+            emissive: 0x0057ff,
+            emissiveIntensity: 0.5,
+            roughness: 0.2,
+            metalness: 0.8
+        });
+        const innerCore = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+        coreGroup.add(innerCore);
+
+        // 2. Outer Wireframe Geosphere
+        const outerCoreGeo = new THREE.IcosahedronGeometry(1.5, 2);
+        const outerCoreMat = new THREE.MeshStandardMaterial({
+            color: 0x00f0ff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const outerCore = new THREE.Mesh(outerCoreGeo, outerCoreMat);
+        coreGroup.add(outerCore);
+
+        // 3. Luminous Orbital Rings
+        const createRing = (radius, color, rotationX, rotationY) => {
+            const ringGeo = new THREE.TorusGeometry(radius, 0.015, 16, 100);
+            const ringMat = new THREE.MeshStandardMaterial({ 
+                color: color, 
+                emissive: color, 
+                emissiveIntensity: 2 
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = rotationX;
+            ring.rotation.y = rotationY;
+            return ring;
+        };
+
+        const ring1 = createRing(2.6, 0x00f0ff, Math.PI / 3, 0); // Cyan
+        const ring2 = createRing(3.2, 0x0057ff, 0, Math.PI / 4); // Blue
+        const ring3 = createRing(4.0, 0x60a5fa, Math.PI / 6, Math.PI / 3); // Light Blue
+        coreGroup.add(ring1, ring2, ring3);
+
+        // 4. Atmospheric Particle Field
+        const particlesGeo = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+        const posArray = new Float32Array(particlesCount * 3);
+        
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Spread particles across a wide spatial area
+            posArray[i] = (Math.random() - 0.5) * 25;
+        }
+        
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMat = new THREE.PointsMaterial({ 
+            size: 0.03, 
+            color: 0x00f0ff, 
+            transparent: true, 
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+        const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(particlesMesh);
+
+        // 5. Cinematic Lighting
+        const pointLight = new THREE.PointLight(0x00f0ff, 2, 20);
+        pointLight.position.set(0, 0, 0);
+        coreGroup.add(pointLight);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0x0057ff, 2);
+        directionalLight.position.set(5, 3, 5);
+        scene.add(directionalLight);
+
+        // 6. Responsive Positioning
+        camera.position.z = 8;
+        
+        const updatePosition = () => {
+            if(window.innerWidth > 900) {
+                // Desktop: Move 3D object to the right column of the hero section
+                coreGroup.position.x = 3.5;
+                coreGroup.position.y = 0;
+            } else {
+                // Mobile: Center it and move it slightly up behind the text
+                coreGroup.position.x = 0;
+                coreGroup.position.y = 1.5;
+            }
+        };
+        updatePosition();
+
+        // 7. Mouse Spatial Navigation Integration
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // 8. Animation Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Core rotations
+            innerCore.rotation.y -= 0.005;
+            outerCore.rotation.y += 0.002;
+            outerCore.rotation.x += 0.001;
+
+            // Ring orbits
+            ring1.rotation.z -= 0.005;
+            ring2.rotation.z += 0.003;
+            ring3.rotation.x = Math.sin(elapsedTime * 0.2) * 0.2 + (Math.PI / 6);
+            ring3.rotation.z -= 0.002;
+
+            // Particle drift
+            particlesMesh.rotation.y = -elapsedTime * 0.02;
+
+            // Subtle camera easing based on mouse movement
+            targetX = mouseX * 0.5;
+            targetY = mouseY * 0.5;
+            
+            camera.position.x += (targetX - camera.position.x) * 0.02;
+            camera.position.y += (targetY - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            updatePosition();
+        });
+
+    </script>
+
+    <!-- Standard UI Scripts -->
+    <script>
+        // Initialize AOS Animations
         AOS.init({
             once: true,
             offset: 50,
@@ -530,7 +720,7 @@
             easing: 'ease-out-cubic',
         });
 
-        // 2. Dynamic Typewriter
+        // Dynamic Typewriter
         const textElement = document.getElementById('typewriter');
         const phrases = ["Tier-1 Storage.", "Responsive UI.", "System Uptime.", "Web Applications."];
         let phraseIndex = 0, charIndex = 0, isDeleting = false;
@@ -547,7 +737,7 @@
         }
         document.addEventListener("DOMContentLoaded", type);
 
-        // 3. Navbar Scroll Effect & Active Link Highlight
+        // Navbar Scroll Effect & Active Link Highlight
         const header = document.getElementById('header');
         const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.nav-link');
@@ -575,7 +765,7 @@
             });
         });
 
-        // 4. Mobile Menu Toggle
+        // Mobile Menu Toggle
         const menuBtn = document.getElementById('menu-btn');
         const navLinksContainer = document.getElementById('nav-links');
         const menuIcon = menuBtn.querySelector('i');
